@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "OpenAI",
+    name: "OpenAICore",
     platforms: [.iOS(.v13), .macCatalyst(.v13), .macOS(.v12), .tvOS(.v11), .watchOS(.v6)],
     products: [
         .library(name: "OpenAICore", targets: ["OpenAICore"]),
