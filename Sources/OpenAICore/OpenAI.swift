@@ -6,14 +6,10 @@
 //
 
 import Foundation
-#if canImport(Combine)
-import Combine
-#endif
 
 final public class OpenAI {
     
     public let serivce: OAISerivce
-    private let session = URLSession.shared
     
     public init(token: String, organization: String? = nil) {
         self.serivce = .init(token: token,
