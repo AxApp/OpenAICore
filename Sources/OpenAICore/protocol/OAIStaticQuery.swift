@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import STJSON
 
 public struct OAIStaticQuery: OAIAPIQuery {
     
@@ -16,8 +17,8 @@ public struct OAIStaticQuery: OAIAPIQuery {
         self.dict = dict
     }
     
-    public func serialize() -> [String: Any] {
-        return self.dict
+    public func serialize() throws -> JSON {
+        .init(self.dict)
     }
     
 }

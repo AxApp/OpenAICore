@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import STJSON
 
 public struct OAIBillingUsage: OAIAPI {
     
@@ -28,11 +29,11 @@ public struct OAIBillingUsage: OAIAPI {
             formatter.dateFormat = "yyyy-MM-dd"
         }
         
-        public func serialize() -> [String: Any] {
-            return [
+        public func serialize() throws -> JSON {
+            return .init([
                 "start_date": formatter.string(from: from),
                 "end_date": formatter.string(from: to)
-            ]
+            ])
         }
     }
     

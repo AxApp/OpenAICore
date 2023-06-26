@@ -6,34 +6,29 @@
 //
 
 import Foundation
+import STJSON
 
 
 public protocol OAIAPIQuery {
     
-    func serialize() throws -> [String: Any]
-    func serializeData() throws -> Data
+    func serialize() throws -> JSON
 
 }
 
-public extension OAIAPIQuery {
+public extension Array where Element: OAIAPIQuery {
     
-    func serializeData() throws -> Data {
-       try JSONSerialization.data(withJSONObject: serialize())
+    func serialize() throws -> JSON {
+       JSON(try self.map({ try $0.serialize() }))
     }
     
 }
 
 public extension OAIAPIQuery where Self: Codable {
-    
-    func serialize() throws -> [String: Any] {
-        do {
-            let encoder = JSONEncoder()
-            let data = try encoder.encode(self)
-            return (try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]) ?? [:]
-        } catch {
-            assertionFailure()
-            return [:]
-        }
+
+    func serialize() throws -> JSON {
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(self)
+        return try JSON(data: data)
     }
     
 }

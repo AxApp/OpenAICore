@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct OpenAIModel {
+public struct OpenAIModel: Equatable, Codable, Hashable {
     
     public let name: String
     public let description: String
@@ -25,7 +25,7 @@ public struct OpenAIModel {
 
 public extension OpenAIModel {
     
-    static let all: [OpenAIModel] = allGPT4 + allGPT35
+    static let all: [OpenAIModel] = GPT35Turbos + GPT4s
 
     static func model(by name: String?) -> OpenAIModel? {
         guard let name = name else { return nil }
@@ -37,7 +37,7 @@ public extension OpenAIModel {
 // GPT4
 public extension OpenAIModel {
     
-    static let allGPT4: [OpenAIModel] = [.gpt4, .gpt40314, .gpt432k, .gpt432k0314]
+    static let GPT4s: [OpenAIModel] = [.gpt4, .gpt432k]
     
     static let gpt4 = OpenAIModel(name: "gpt-4",
                                   description: "More capable than any GPT-3.5 model, able to do more complex tasks, and optimized for chat. Will be updated with our latest model iteration.",
@@ -65,11 +65,23 @@ public extension OpenAIModel {
 // GPT 3.5
 public extension OpenAIModel {
     
-    static let allGPT35: [OpenAIModel] = [.gpt35Turbo,
-                                          .gpt35Turbo0301,
-                                          .textDavinci003,
-                                          .textDavinci002,
-                                          .codeDavinci002]
+    static let GPT35Turbos: [OpenAIModel] = [.gpt35Turbo, .gpt35Turbo16K]
+        
+    static let gpt35Turbo16K = OpenAIModel(name: "gpt-3.5-turbo-16k",
+                                        description: "Same capabilities as the standard model but with 4 times the context.gpt-3.5-turbo",
+                                        token: 16384,
+                                        date: Date(timeIntervalSince1970: 1630444800)) // Sep 1, 2021
+
+    static let gpt35Turbo0613 = OpenAIModel(name: "gpt-3.5-turbo-0613",
+                                        description: "Snapshot of from June 13th 2023 with function calling data. Unlike , this model will not receive updates, and will be deprecated 3 months after a new version is released.gpt-3.5-turbogpt-3.5-turbo",
+                                        token: 16384,
+                                        date: Date(timeIntervalSince1970: 1630444800)) // Sep 1, 2021
+    
+    static let gpt35Turbo16K0613 = OpenAIModel(name: "gpt-3.5-turbo-16k-0613",
+                                        description: "Snapshot of from June 13th 2023. Unlike , this model will not receive updates, and will be deprecated 3 months after a new version is released.gpt-3.5-turbo-16kgpt-3.5-turbo-16k",
+                                        token: 16384,
+                                        date: Date(timeIntervalSince1970: 1630444800)) // Sep 1, 2021
+
     
     static let gpt35Turbo = OpenAIModel(name: "gpt-3.5-turbo",
                                         description: "Most capable GPT-3.5 model and optimized for chat at 1/10th the cost of . Will be updated with our latest model iteration.text-davinci-003",

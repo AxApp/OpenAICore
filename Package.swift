@@ -9,6 +9,7 @@ let package = Package(
     products: [
         .library(name: "OpenAICore", targets: ["OpenAICore"]),
     ],
+    dependencies: [.package(name: "STJSON", path: "/Users/linhey/Desktop/STJSON")],
     targets: [
         .target(name: "OpenAICore",
                 resources: [
