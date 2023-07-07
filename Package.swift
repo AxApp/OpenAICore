@@ -9,9 +9,10 @@ let package = Package(
     products: [
         .library(name: "OpenAICore", targets: ["OpenAICore"]),
     ],
-    dependencies: [.package(name: "STJSON", path: "/Users/linhey/Desktop/STJSON")],
+    dependencies: [.package(url: "https://github.com/linhay/STJSON", .upToNextMajor(from: "1.0.1"))],
     targets: [
         .target(name: "OpenAICore",
+                dependencies: ["STJSON"],
                 resources: [
                     .process("Resources/encoder.json"),
                     .process("Resources/vocab.bpe")

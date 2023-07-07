@@ -37,7 +37,15 @@ public struct OAICompletions: OAIAPI {
         /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
         public let user: String?
         
-        public init(model: OpenAIModel, prompt: String, temperature: Double? = nil, max_tokens: Int? = nil, top_p: Double? = nil, frequency_penalty: Double? = nil, presence_penalty: Double? = nil, stop: [String]? = nil, user: String? = nil) {
+        public init(model: OpenAIModel,
+                    prompt: String,
+                    temperature: Double? = nil,
+                    max_tokens: Int? = nil,
+                    top_p: Double? = nil,
+                    frequency_penalty: Double? = nil,
+                    presence_penalty: Double? = nil,
+                    stop: [String]? = nil,
+                    user: String? = nil) {
             self.model = model.name
             self.prompt = prompt
             self.temperature = temperature

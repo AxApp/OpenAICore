@@ -267,33 +267,21 @@ public struct OAIChat: OAIAPI {
             
         }
         
-        public struct Usage: Codable {
-            
-            public let prompt_tokens: Int
-            public let completion_tokens: Int
-            public let total_tokens: Int
-            
-            public init(prompt_tokens: Int, completion_tokens: Int, total_tokens: Int) {
-                self.prompt_tokens = prompt_tokens
-                self.completion_tokens = completion_tokens
-                self.total_tokens = total_tokens
-            }
-            
-        }
+
         
         public let id: String
         public let object: String
         public let created: TimeInterval
         public let model: String
         public let choices: [Choice]
-        public let usage: Usage
+        public let usage: OAIUsage
         
         public init(id: String,
                     object: String,
                     created: TimeInterval,
                     model: String,
                     choices: [Choice],
-                    usage: Usage) {
+                    usage: OAIUsage) {
             self.id = id
             self.object = object
             self.created = created

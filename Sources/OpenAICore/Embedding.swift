@@ -13,6 +13,24 @@ public struct OAIEmbeddings: OAIAPI {
     public let path: OAIPath = .embeddings
     public let query: Query
     
+    public enum Model: String, Codable {
+        case text_embedding_ada_002 = "text-embedding-ada-002"
+        
+        public var maxInputTokens: Int {
+            switch self {
+            case .text_embedding_ada_002:
+                return 8191
+            }
+        }
+        
+        public var outputDimensions: Int {
+            switch self {
+            case .text_embedding_ada_002:
+                return 1536
+            }
+        }
+    }
+    
     public init(query: Query) {
         self.query = query
     }
@@ -23,8 +41,8 @@ public struct OAIEmbeddings: OAIAPI {
         /// Input text to get embeddings for
         public let input: String
         
-        public init(model: OpenAIModel, input: String) {
-            self.model = model.name
+        public init(model: Model = .text_embedding_ada_002, input: String) {
+            self.model = model.rawValue
             self.input = input
         }
     }
@@ -33,10 +51,15 @@ public struct OAIEmbeddings: OAIAPI {
         
         public struct Embedding: Codable {
             public let object: String
-            public let embedding: [Double]
+            public let embedding: [Decimal]
             public let index: Int
         }
+        
+        public let object: String
         public let data: [Embedding]
+        public let model: String
+        public let usage: OAIUsage
+
     }
     
 }

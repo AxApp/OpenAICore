@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "stjson",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/linhay/STJSON",
+      "state" : {
+        "revision" : "c994764c36a956e9e1d35687c6e65c01bff38914",
+        "version" : "1.0.1"
+      }
+    }
+  ],
+  "version" : 2
+}
