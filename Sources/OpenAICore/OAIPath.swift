@@ -17,7 +17,7 @@ public struct OAIPath: RawRepresentable, Codable, Equatable {
     public static let images               = OAIPath(rawValue: "v1/images/generations")
     public static let embeddings           = OAIPath(rawValue: "v1/embeddings")
     public static let chats                = OAIPath(rawValue: "v1/chat/completions")
-    
+
     public let rawValue: String
     
     public init(rawValue: String) {

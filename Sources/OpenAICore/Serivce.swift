@@ -13,7 +13,9 @@ public struct OAISerivce: Codable, Equatable {
     public var organization: String
     public var host: OAIHost
     
-    public init(token: String, organization: String = "", host: OAIHost? = nil) {
+    public init(token: String,
+                organization: String = "",
+                host: OAIHost? = nil) {
         self.token = token
         self.organization = organization
         self.host = host ?? .openAI

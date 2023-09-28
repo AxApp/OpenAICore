@@ -7,41 +7,48 @@
 
 import Foundation
 
-public struct OAIModels: OAIAPI {
-    public typealias Query = OAIStaticQuery
+public struct OAIModel: Codable, Identifiable {
     
-    public let path: OAIPath = .models
-    public var query: OAIStaticQuery = .empty
-    public init() {}
+    public let id: String
+    public let object: String
+    public let created: Int
+    public let owned_by: String
     
-    public struct Response: Codable {
-        
-        public struct Model: Codable {
-            public let id: String
-            public let object: String
-            public let created: TimeInterval
-            public let ownedBy: String?
-            public let permission: [Permission]
-        }
-        
-        public struct Permission: Codable {
-            public let id: String
-            public let object: String
-            public let created: Int
-            public let allow_create_engine: Bool
-            public let allow_sampling: Bool
-            public let allow_logprobs: Bool
-            public let allow_search_indices: Bool
-            public let allow_view: Bool
-            public let allow_fine_tuning: Bool
-            public let organization: String
-            public let group: String?
-            public let is_blocking: Bool
-        }
-        
-        public let data: [Model]
-        public let object: String
-        public let root: String?
+}
+
+
+public struct OAIModelAPIs {
+    
+    public let client: OAIClientProtocol
+    public let serivce: OAISerivce
+    
+    public init(client: OAIClientProtocol, serivce: OAISerivce) {
+        self.client = client
+        self.serivce = serivce
     }
     
+    public func list() async throws -> [OAIModel] {
+        let request = client.request(of: serivce, path: "v1/models")
+        let data = try await client.data(for: request)
+        return try client.decode(OAIDataResponse<[OAIModel]>.self, from: data).data
+    }
+    
+    public func retrieve(id: OAIModel.ID) async throws -> OAIModel {
+        let request = client.request(of: serivce, path: "v1/models/\(id)")
+        let data = try await client.data(for: request)
+        return try client.decode(data)
+    }
+    
+    public struct DeletedResponse: Codable {
+        let id: OAIModel.ID
+        let object: String
+        let deleted: Bool
+    }
+    
+    public func delete(id: OAIModel.ID) async throws -> DeletedResponse {
+        var request = client.request(of: serivce, path: "v1/models/\(id)")
+        request.method = .delete
+        let data = try await client.data(for: request)
+        return try client.decode(data)
+    }
 }

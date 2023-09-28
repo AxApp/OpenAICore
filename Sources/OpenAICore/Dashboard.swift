@@ -7,10 +7,3 @@
 
 import Foundation
 
-extension OpenAI {
-    
-    struct Dashboard {
-        
-    }
-    
-}

@@ -13,18 +13,18 @@ public struct OAIErrorResponse: Codable {
 
 public struct OAIError: Codable, LocalizedError {
     
-    public static let invalidURL = OAIError(kind: .invalidURL)
-    public static let emptyData  = OAIError(kind: .emptyData)
+    public static let invalidURL = OAIError(.invalidURL)
+    public static let emptyData  = OAIError(.emptyData)
     
     
     public enum Kind: String, Codable {
         case invalid_request_error
         case server_error
-        
         /// custom error
         case invalidURL
         case emptyData
         case unknown
+        case failedToConvertHTTPRequestToURLRequest
     }
     
     public let message: String
@@ -35,7 +35,10 @@ public struct OAIError: Codable, LocalizedError {
     public var kind: Kind { .init(rawValue: type) ?? .unknown }
     public var errorDescription: String? { message }
 
-    public init(kind: Kind = .unknown, message: String? = nil, param: String? = nil, code: String? = nil) {
+    public init(_ kind: Kind = .unknown,
+                message: String? = nil,
+                param: String? = nil,
+                code: String? = nil) {
         self.message = message ?? kind.rawValue
         self.type = kind.rawValue
         self.param = param

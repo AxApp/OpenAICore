@@ -8,6 +8,15 @@
         "revision" : "c994764c36a956e9e1d35687c6e65c01bff38914",
         "version" : "1.0.1"
       }
+    },
+    {
+      "identity" : "swift-http-types",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-http-types.git",
+      "state" : {
+        "revision" : "99d066e29effa8845e4761dd3f2f831edfdf8925",
+        "version" : "1.0.0"
+      }
     }
   ],
   "version" : 2

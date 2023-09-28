@@ -7,21 +7,17 @@
 
 import Foundation
 
-public extension OpenAI {
-    
-    final class Tokenizer {
-        private lazy var encoder = get_encoder()
-        private lazy var decoder = get_decoder()
-        private lazy var bpe_ranks = get_bpe_ranks()
-        private lazy var byte_encoder = bytes_to_unicode()
-        private lazy var byte_decoder = get_byte_decoder()
-        private lazy var cache = [String: String]()
-        public init() {}
-    }
-    
+public final class OAITokenizer {
+    private lazy var encoder = get_encoder()
+    private lazy var decoder = get_decoder()
+    private lazy var bpe_ranks = get_bpe_ranks()
+    private lazy var byte_encoder = bytes_to_unicode()
+    private lazy var byte_decoder = get_byte_decoder()
+    private lazy var cache = [String: String]()
+    public init() {}
 }
 
-public extension OpenAI.Tokenizer {
+public extension OAITokenizer {
     
     struct Word {
         public let word: String
@@ -67,7 +63,7 @@ public extension OpenAI.Tokenizer {
     
 }
 
-private extension OpenAI.Tokenizer {
+private extension OAITokenizer {
     
     struct Pair: Hashable {
         let x: String
