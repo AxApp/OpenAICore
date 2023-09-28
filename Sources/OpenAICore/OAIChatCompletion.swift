@@ -7,7 +7,6 @@
 
 import Foundation
 import STJSON
-import Combine
 
 public struct OAIChatCompletion: Codable {
     
@@ -200,6 +199,21 @@ public struct OAIChatCompletion: Codable {
     public var choices: [Choice]
     public var usage: OAIUsage?
     
+    
+    public init(id: String = "",
+                object: Object = .chat_completion,
+                created: TimeInterval = .zero,
+                model: String = "",
+                choices: [Choice] = [],
+                usage: OAIUsage? = nil) {
+        self.id = id
+        self.object = object
+        self.created = created
+        self.model = model
+        self.choices = choices
+        self.usage = usage
+    }
+    
 }
 
 
@@ -344,31 +358,9 @@ public struct OAIChatCompletionAPIs {
         return stream
     }
     
-    public func create(publisher parameter: CreateParameter) async throws -> AnyPublisher<OAIChatCompletion, Error> {
-        let stream  = try await create(stream: parameter)
-        let subject = PassthroughSubject<OAIChatCompletion, Error>()
-        var completion = OAIChatCompletion(id: "",
-                                           object: .chat_completion_chunk,
-                                           created: .zero,
-                                           model: "",
-                                           choices: [],
-                                           usage: .init())
-        do {
-            for try await chat in stream {
-                completion = merge(completion: chat, to: completion)
-                subject.send(completion)
-            }
-            subject.send(completion: .finished)
-        } catch {
-            subject.send(completion: .failure(error))
-        }
-        
-        return subject.eraseToAnyPublisher()
-    }
-    
 }
 
-extension OAIChatCompletionAPIs {
+public extension OAIChatCompletionAPIs {
     
     func merge(completion: OAIChatCompletion, to raw: OAIChatCompletion) -> OAIChatCompletion {
         var raw = raw

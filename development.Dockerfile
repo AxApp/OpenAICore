@@ -1,5 +1,5 @@
 # 1
-FROM swiftlang/swift:nightly-5.7-jammy
+FROM swiftlang/swift:nightly-5.9-jammy
 WORKDIR /app
 COPY . .
 

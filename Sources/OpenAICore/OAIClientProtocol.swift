@@ -39,6 +39,10 @@ public extension OAIClientProtocol {
     var encoder: JSONEncoder { .init() }
     var decoder: JSONDecoder { .init() }
     
+    func encode<T: Encodable>(_ type: T) throws -> Data {
+       try encoder.encode(type)
+    }
+    
     func encode<T: STJSONEncodable>(_ type: T) throws -> Data {
         var options: JSONSerialization.WritingOptions = []
         if encoder.outputFormatting.contains(.sortedKeys) {
