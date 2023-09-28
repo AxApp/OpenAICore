@@ -55,7 +55,9 @@ public struct OAIEmbeddingAPIs {
         var input: [String]
         var user: String?
         
-        public init(model: EmbeddingModel, input: [String], user: String? = nil) {
+        public init(model: EmbeddingModel = .text_embedding_ada_002,
+                    input: [String],
+                    user: String? = nil) {
             self.model = model
             self.input = input
             self.user = user
