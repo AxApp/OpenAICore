@@ -10,7 +10,7 @@ import STJSON
 
 public struct OAIChatCompletion: Codable {
     
-    public struct Function: OAIAPIQuery, Equatable, Hashable {
+    public struct Function: Equatable, Hashable {
         
         public var name: String
         public var description: String?
@@ -73,7 +73,7 @@ public struct OAIChatCompletion: Codable {
         
     }
     
-    public struct Message: Codable, Equatable, OAIAPIQuery {
+    public struct Message: Codable, Equatable, STJSONEncodable {
         
         public var role: String
         public var content: String
@@ -229,7 +229,7 @@ public struct OAIChatCompletionAPIs {
     
     public struct CreateParameter: STJSONEncodable {
         
-        public enum FunctionCall: OAIAPIQuery, Equatable, Hashable {
+        public enum FunctionCall: Equatable, Hashable {
             
             case none
             case auto
@@ -262,7 +262,7 @@ public struct OAIChatCompletionAPIs {
         }
         
         /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
-        public var model: OpenAIModel = .gpt35Turbo16K
+        public var model: OAIGPTModel = .gpt35Turbo16K
         /// The messages to generate chat completions for
         public var messages: [OAIChatCompletion.Message] = []
         /// A list of functions the model may generate JSON inputs for.
@@ -305,7 +305,7 @@ public struct OAIChatCompletionAPIs {
             if !functions.isEmpty {
                 dict["functions"] = try functions.map({ try $0.serialize() })
             }
-            dict["messages"] = try messages.map({ try $0.serialize() })
+            dict["messages"] = try messages.map({ try $0.encode() })
             dict["model"] = model.name
             return .init(dict)
         }

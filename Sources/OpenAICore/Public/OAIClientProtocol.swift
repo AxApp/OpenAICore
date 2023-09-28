@@ -23,6 +23,14 @@ public protocol STJSONEncodable {
     func encode() throws -> JSON
 }
 
+public extension STJSONEncodable where Self: Codable {
+
+    func encode() throws -> JSON {
+        let data = try JSONEncoder().encode(self)
+        return try JSON(data: data)
+    }
+    
+}
 
 public protocol OAIClientProtocol {
 
