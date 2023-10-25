@@ -1,20 +1,28 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2023/9/26.
 //
 
 import Foundation
 
-struct OAIDataResponse<T: Codable>: Codable {
+public struct OAIDataResponse<Value: Codable>: Codable {
     
-    enum Object: String, Codable {
+    public enum Object: String, Codable {
         case list
     }
     
-    let data: T
-    let object: Object
-    let has_more: Bool?
+    public let data: Value
+    public let object: Object
+    public let has_more: Bool?
+    
+    public init(data: Value,
+                object: Object,
+                has_more: Bool?) {
+        self.data = data
+        self.object = object
+        self.has_more = has_more
+    }
     
 }
