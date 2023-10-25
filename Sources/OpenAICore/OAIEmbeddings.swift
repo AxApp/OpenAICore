@@ -51,15 +51,24 @@ public struct OAIEmbeddingAPIs {
     }
     
     public struct CreateParameter: Codable {
-        var model: EmbeddingModel
-        var input: [String]
-        var user: String?
+       
+        public var model: EmbeddingModel
+        public var input: [String]
+        public var user: String?
         
         public init(model: EmbeddingModel = .text_embedding_ada_002,
                     input: [String],
                     user: String? = nil) {
             self.model = model
             self.input = input
+            self.user = user
+        }
+        
+        public init(model: EmbeddingModel = .text_embedding_ada_002,
+                    input: String,
+                    user: String? = nil) {
+            self.model = model
+            self.input = [input]
             self.user = user
         }
     }
@@ -69,7 +78,7 @@ public struct OAIEmbeddingAPIs {
         request.method = .post
         let request_body = try client.encode(parameter)
         let data = try await client.upload(for: request, from: request_body)
-        return try client.decode(data)
+        return try client.decode(OAIDataResponse<[OAIEmbedding]>.self, from: data).data
     }
     
 }

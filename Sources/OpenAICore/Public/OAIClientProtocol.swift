@@ -101,7 +101,7 @@ public extension OAIClientProtocol {
     }
     
     func request(of serivce: OAISerivce, path: String) -> HTTPRequest {
-        var request = HTTPRequest(method: .get, url: URL(string: serivce.host.rawValue)!)
+        var request = HTTPRequest(method: .get, url: URL(string: serivce.host.rawValue) ?? URL(string: OAIHost.openAI.rawValue)!)
         var path = path
         if !path.hasPrefix("/") {
             path = "/\(path)"

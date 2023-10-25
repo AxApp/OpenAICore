@@ -27,9 +27,19 @@ public extension OAIGPTModel {
     
     static let all: [OAIGPTModel] = GPT35Turbos + GPT4s
     
-    static func model(by name: String?) -> OAIGPTModel? {
-        guard let name = name else { return nil }
-        return all.first(where: { $0.name == name })
+    static let allMap: [String: OAIGPTModel] = {
+        var dict = [String: OAIGPTModel]()
+        for item in all {
+            dict[item.name] = item
+        }
+        return dict
+    }()
+    
+    static func model(by name: String) -> OAIGPTModel {
+        return allMap[name] ?? .init(name: name,
+                                     description: "",
+                                     token: 0,
+                                     date: .distantPast)
     }
     
 }
