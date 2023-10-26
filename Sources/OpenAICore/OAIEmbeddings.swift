@@ -46,8 +46,29 @@ public struct OAIEmbeddingAPIs {
         self.serivce = serivce
     }
     
-    public enum EmbeddingModel: String, Codable {
-        case text_embedding_ada_002 = "text-embedding-ada-002"
+    public struct EmbeddingModel: RawRepresentable, ExpressibleByStringLiteral, Codable {
+       
+        public static let text_embedding_ada_002: EmbeddingModel = "text-embedding-ada-002"
+        public let rawValue: String
+        
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+        
+        public init(stringLiteral value: String) {
+            self.rawValue = value
+        }
+        
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(rawValue)
+        }
+        
+        public init(from decoder: Decoder) throws {
+            var container = try decoder.singleValueContainer()
+            self.rawValue = try container.decode(String.self)
+        }
+    
     }
     
     public struct CreateParameter: Codable {
