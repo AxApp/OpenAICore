@@ -9,6 +9,9 @@ import Foundation
 
 public struct OAIErrorResponse: Codable {
     public let error: OAIError
+    public init(error: OAIError) {
+        self.error = error
+    }
 }
 
 public struct OAIError: Codable, LocalizedError {
