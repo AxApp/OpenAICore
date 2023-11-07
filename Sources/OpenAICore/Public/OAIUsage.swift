@@ -14,7 +14,7 @@ public struct OAIUsage: Codable {
     public var total_tokens: Int
     
     public init(prompt_tokens: Int = 0,
-                completion_tokens: Int? = 0,
+                completion_tokens: Int? = nil,
                 total_tokens: Int = 0) {
         self.prompt_tokens = prompt_tokens
         self.completion_tokens = completion_tokens

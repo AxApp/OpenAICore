@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2023/3/24.
 //
@@ -13,34 +13,49 @@ public struct OAIErrorResponse: Codable {
 
 public struct OAIError: Codable, LocalizedError {
     
-    public static let invalidURL = OAIError(.invalidURL)
-    public static let emptyData  = OAIError(.emptyData)
+    public static let invalidURL = OAIError(type: .invalidURL)
+    public static let emptyData  = OAIError(type: .emptyData)
     
-    
-    public enum Kind: String, Codable {
-        case invalid_request_error
-        case server_error
-        /// custom error
-        case invalidURL
-        case emptyData
-        case unknown
-        case failedToConvertHTTPRequestToURLRequest
+    public struct Kind: RawRepresentable, ExpressibleByStringLiteral, Codable, Equatable {
+        static let invalid_request_error = Kind(rawValue: "invalid_request_error")
+        static let server_error = Kind(rawValue: "server_error")
+        static let invalidURL = Kind(rawValue: "invalidURL")
+        static let emptyData = Kind(rawValue: "emptyData")
+        static let failedToConvertHTTPRequestToURLRequest = Kind(rawValue: "failedToConvertHTTPRequestToURLRequest")
+        
+        public var rawValue: String
+        
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+        
+        public init(stringLiteral value: String) {
+            self.rawValue = value
+        }
+        
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(rawValue)
+        }
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            self.rawValue = try container.decode(RawValue.self)
+        }
     }
     
     public let message: String
-    public let type: String
+    public let type: Kind
     public let param: String?
     public let code: String?
-    
-    public var kind: Kind { .init(rawValue: type) ?? .unknown }
     public var errorDescription: String? { message }
-
-    public init(_ kind: Kind = .unknown,
+    
+    public init(type: Kind,
                 message: String? = nil,
                 param: String? = nil,
                 code: String? = nil) {
-        self.message = message ?? kind.rawValue
-        self.type = kind.rawValue
+        self.message = message ?? type.rawValue
+        self.type = type
         self.param = param
         self.code = code
     }
