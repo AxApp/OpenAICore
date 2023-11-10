@@ -158,10 +158,29 @@ public struct OAIChatCompletion: Codable {
     }
 
     public struct Choice: Codable {
+        
         public var index: Int
         public var message: Message
         public var delta: Message?
         public var finish_reason: FinishReason?
+        
+        public init(index: Int,
+                    message: OAIChatCompletion.Message,
+                    finish_reason: OAIChatCompletion.FinishReason? = nil) {
+            self.index = index
+            self.message = message
+            self.delta = nil
+            self.finish_reason = finish_reason
+        }
+        
+        public init(index: Int,
+                    delta: OAIChatCompletion.Message,
+                    finish_reason: OAIChatCompletion.FinishReason? = nil) {
+            self.index = index
+            self.message = delta
+            self.delta = delta
+            self.finish_reason = finish_reason
+        }
         
         enum CodingKeys: CodingKey {
             case index

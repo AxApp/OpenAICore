@@ -20,11 +20,12 @@ public struct OAIError: Codable, LocalizedError {
     public static let emptyData  = OAIError(type: .emptyData)
     
     public struct Kind: RawRepresentable, ExpressibleByStringLiteral, Codable, Equatable {
-        static let invalid_request_error = Kind(rawValue: "invalid_request_error")
-        static let server_error = Kind(rawValue: "server_error")
-        static let invalidURL = Kind(rawValue: "invalidURL")
-        static let emptyData = Kind(rawValue: "emptyData")
-        static let failedToConvertHTTPRequestToURLRequest = Kind(rawValue: "failedToConvertHTTPRequestToURLRequest")
+        
+        public static let invalid_request_error = Kind(rawValue: "invalid_request_error")
+        public static let server_error = Kind(rawValue: "server_error")
+        public static let invalidURL = Kind(rawValue: "invalidURL")
+        public static let emptyData = Kind(rawValue: "emptyData")
+        public static let failedToConvertHTTPRequestToURLRequest = Kind(rawValue: "failedToConvertHTTPRequestToURLRequest")
         
         public var rawValue: String
         
