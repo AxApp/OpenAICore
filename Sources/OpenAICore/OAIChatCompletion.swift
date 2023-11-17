@@ -341,6 +341,10 @@ public struct OAIChatCompletionAPIs {
         self.serivce = serivce
     }
     
+    public enum ResponseFormat: String, Codable {
+        case json
+    }
+    
     public struct CreateParameter: STJSONEncodable {
         
         public struct FunctionItem: Equatable, Hashable, Codable {
@@ -465,6 +469,7 @@ public struct OAIChatCompletionAPIs {
             }
         }
         
+        public var response_format: ResponseFormat?
         /// 此功能处于测试阶段。如果指定，我们的系统将尽最大努力确定性地进行采样，以便具有相同 和 参数的重复请求应返回相同的结果。不能保证确定性，您应该参考 response 参数来监视后端的变化。
         public var seed: Int?
         public var tools: [Tool]?
@@ -497,6 +502,9 @@ public struct OAIChatCompletionAPIs {
         public func encode() throws -> JSON {
             var dict = [String: Any]()
             dict["logit_bias"] = logit_bias
+            if let response_format {
+                dict["response_format"] = ["type": response_format.rawValue]
+            }
             dict["frequency_penalty"] = frequency_penalty
             dict["presence_penalty"] = presence_penalty
             dict["max_tokens"] = max_tokens
