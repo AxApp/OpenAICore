@@ -19,10 +19,14 @@ let package = Package(
                     "STJSON",
                     .product(name: "HTTPTypesFoundation", package: "swift-http-types"),
                     .product(name: "HTTPTypes", package: "swift-http-types")
-],
+                ],
                 resources: [
                     .process("Resources/encoder.json"),
                     .process("Resources/vocab.bpe")
-                ])
+                ]),
+        .testTarget(name: "OpenAICoreTests", dependencies: [
+            "STJSON",
+            .target(name: "OpenAICore")
+        ])
     ]
 )

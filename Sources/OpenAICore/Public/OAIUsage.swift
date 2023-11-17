@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct OAIUsage: Codable {
+public struct OAIUsage: Codable, Equatable {
     
     public var prompt_tokens: Int
     public var completion_tokens: Int?

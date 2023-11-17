@@ -10,6 +10,53 @@ import STJSON
 
 public struct OAIChatCompletion: Codable {
     
+    public typealias Message = MessageItem<String>
+    
+    public struct FunctionCall: Codable, Equatable, Hashable {
+        public var name: String
+        public var arguments: String
+        
+        public init(name: String, arguments: String) {
+            self.name = name
+            self.arguments = arguments
+        }
+    }
+    
+    public struct ToolCall: Codable, Equatable {
+        public let id: String
+        public let type: String
+        public let function: FunctionCall
+        public init(id: String, type: String, function: FunctionCall) {
+            self.id = id
+            self.type = type
+            self.function = function
+        }
+    }
+    
+    public struct MessageItem<Content: Codable & Equatable>: Codable, Equatable, STJSONEncodable {
+        public var role: String
+        public var content: Content?
+        public var tool_calls: [ToolCall]?
+        public var tool_call_id: String?
+        
+        public init(role: String, content: Content) {
+            self.role = role
+            self.content = content
+        }
+        
+        public init(role: Role, content: Content) {
+            self.init(role: role.rawValue, content: content)
+        }
+        
+        public init(from decoder: Decoder) throws {
+            let container     = try decoder.container(keyedBy: CodingKeys.self)
+            self.role         = try container.decodeIfPresent(String.self, forKey: .role) ?? ""
+            self.content      = try container.decodeIfPresent(Content.self, forKey: .content)
+            self.tool_calls   = try container.decodeIfPresent([OAIChatCompletion.ToolCall].self, forKey: .tool_calls)
+            self.tool_call_id = try container.decodeIfPresent(String.self, forKey: .tool_call_id)
+        }
+    }
+    
     public struct Function: Equatable, Hashable {
         
         public var name: String
@@ -40,23 +87,14 @@ public struct OAIChatCompletion: Codable {
         
     }
     
-    public struct FunctionCall: Codable, Equatable, Hashable {
-        public var name: String
-        public var arguments: String
-        
-        public init(name: String, arguments: String) {
-            self.name = name
-            self.arguments = arguments
-        }
-    }
-    
     public struct Role: RawRepresentable, Codable, Equatable, Hashable, ExpressibleByStringLiteral {
         
         public static let user      = Role(rawValue: "user")
         public static let system    = Role(rawValue: "system")
         public static let function  = Role(rawValue: "function")
         public static let assistant = Role(rawValue: "assistant")
-        
+        public static let tool      = Role(rawValue: "tool")
+
         public let rawValue: String
         
         public init(_ rawValue: String) {
@@ -73,49 +111,10 @@ public struct OAIChatCompletion: Codable {
         
     }
     
-    public struct Message: Codable, Equatable, STJSONEncodable {
-        
-        public var role: String
-        public var content: String
-        public var function_call: FunctionCall?
-        
-        public init(role: String, content: String, function_call: FunctionCall? = nil) {
-            self.role = role
-            self.content = content
-            self.function_call = function_call
-        }
-        
-        public init(role: Role, content: String, function_call: FunctionCall? = nil) {
-            self.init(role: role.rawValue, content: content, function_call: function_call)
-        }
-        
-        public enum CodingKeys: CodingKey {
-            case role
-            case content
-            case function_call
-        }
-        
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            self.role          = try container.decodeIfPresent(String.self, forKey: .role) ?? ""
-            self.content       = try container.decodeIfPresent(String.self, forKey: .content) ?? ""
-            self.function_call = try container.decodeIfPresent(FunctionCall.self, forKey: .function_call)
-            
-        }
-        
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encodeIfPresent(self.role, forKey: .role)
-            try container.encodeIfPresent(self.content, forKey: .content)
-            try container.encodeIfPresent(self.function_call, forKey: .function_call)
-        }
-        
-        
-    }
-    
     public enum FinishReason: RawRepresentable, Codable {
         case none
         case stop
+        case tool_calls
         case function_call
         case other(String)
         
@@ -125,6 +124,8 @@ public struct OAIChatCompletion: Codable {
                 return ""
             case .stop:
                 return "stop"
+            case .tool_calls:
+                return "tool_calls"
             case .function_call:
                 return "function_call"
             case .other(let value):
@@ -136,9 +137,11 @@ public struct OAIChatCompletion: Codable {
             switch rawValue {
             case "":
                 self = .none
-            case "stop":
+            case FinishReason.stop.rawValue:
                 self = .stop
-            case "function_call":
+            case FinishReason.tool_calls.rawValue:
+                self = .tool_calls
+            case FinishReason.function_call.rawValue:
                 self = .function_call
             default:
                 self = .other(rawValue)
@@ -156,7 +159,7 @@ public struct OAIChatCompletion: Codable {
             self.init(rawValue: value)
         }
     }
-
+    
     public struct Choice: Codable {
         
         public var index: Int
@@ -213,6 +216,7 @@ public struct OAIChatCompletion: Codable {
     
     public var id: String
     public var object: Object
+    public var system_fingerprint: String?
     public var created: TimeInterval
     public var model: String
     public var choices: [Choice]
@@ -230,9 +234,100 @@ public struct OAIChatCompletion: Codable {
         self.created = created
         self.model = model
         self.choices = choices
+        self.system_fingerprint = nil
         self.usage = usage
     }
     
+}
+
+public class OAIChatCompletionStreamMerge {
+    
+    public enum Chunk {
+        case completion(OAIChatCompletion)
+        case done
+    }
+    
+    public var completion = OAIChatCompletion()
+    public var chunks = [OAIChatCompletion]()
+
+    public init(completion: OAIChatCompletion = OAIChatCompletion()) {
+        self.completion = completion
+    }
+    
+    public func chunk(of data: Data) throws -> [Chunk] {
+        guard let eventString = String(data: data, encoding: .utf8) else { return [] }
+        let lines = eventString.split(separator: "\n")
+        var chunks = [Chunk]()
+        let dataTag = "data:"
+        for line in lines {
+            if line == "data: [DONE]" {
+                chunks.append(.done)
+            } else if line.hasPrefix(dataTag), let data = String(line.dropFirst(dataTag.count)).data(using: .utf8) {
+                let completion = try JSONDecoder.shared.decode(OAIChatCompletion.self, from: data)
+                chunks.append(.completion(completion))
+            }
+        }
+        return chunks
+    }
+    
+    public func merge(_ chunks: [Chunk]) {
+        for chunk in chunks {
+            switch chunk {
+            case .completion(let completion):
+                self.chunks.append(completion)
+                merge(completion)
+            case .done:
+                completion.usage = .init(completion_tokens: self.chunks.count)
+            }
+        }
+    }
+    
+    public func merge(_ other: OAIChatCompletion) {
+        completion.id      = other.id
+        completion.object  = other.object
+        completion.created = other.created
+        completion.model   = other.model
+        if completion.usage == nil { completion.usage = other.usage }
+        if completion.system_fingerprint == nil { completion.system_fingerprint = other.system_fingerprint }
+        var raw_store = [Int: OAIChatCompletion.Choice]()
+        var store = [Int: OAIChatCompletion.Choice]()
+        completion.choices.forEach { choice in
+            raw_store[choice.index] = choice
+        }
+        other.choices.forEach { choice in
+            store[choice.index] = choice
+        }
+        
+        var choices = [Int: OAIChatCompletion.Choice]()
+        raw_store.forEach { (key, value) in
+            var value = value
+            if let delta = store[key] {
+                value.finish_reason = delta.finish_reason
+                if let delta_message = delta.delta {
+                    if value.message.content == nil {
+                        value.message.content = delta_message.content
+                    } else if let content = delta_message.content {
+                        value.message.content?.append(content)
+                    }
+                    value.message.role = delta_message.role.isEmpty ? value.message.role : delta_message.role
+                }
+                store[key] = nil
+            }
+            choices[key] = value
+        }
+        raw_store.removeAll()
+        
+        store.forEach { (key, value) in
+            var value = value
+            value.message = value.delta ?? value.message
+            value.delta = nil
+            choices[key] = value
+        }
+        store.removeAll()
+        
+        completion.choices = choices.map(\.value).sorted(by: { $0.index < $1.index })
+    }
+
 }
 
 
@@ -248,46 +343,136 @@ public struct OAIChatCompletionAPIs {
     
     public struct CreateParameter: STJSONEncodable {
         
-        public enum FunctionCall: Equatable, Hashable {
+        public struct FunctionItem: Equatable, Hashable, Codable {
+            public let name: String
+            
+            public init(name: String) {
+                self.name = name
+            }
+        }
+        
+        public struct FunctionChoice: Equatable, Hashable, STJSONEncodable {
+            
+            public let type = "function"
+            public let function: OAIChatCompletion.Function
+            
+            public init(function: OAIChatCompletion.Function) {
+                self.function = function
+            }
+            
+            public func encode() throws -> JSON {
+                var json = JSON()
+                json["type"] = .init(type)
+                json["function"] = try function.serialize()
+                return json
+            }
+            
+        }
+        
+        public enum ToolChoice: Equatable, Hashable, STJSONEncodable {
             
             case none
             case auto
-            case function(String)
+            case function(FunctionChoice)
             
-            public init?(from json: JSON) {
-                if let value = json.string {
-                    switch value {
-                    case "auto": self = .auto
-                    case "none": self = .none
-                    default: return nil
-                    }
-                } else if let value = json.dictionary?["name"]?.string {
-                    self = .function(value)
-                } else {
-                    return nil
+            public func encode() throws -> JSON {
+                switch self {
+                case .none:
+                    return "none"
+                case .auto:
+                    return "auto"
+                case .function(let choice):
+                    return try choice.encode()
                 }
             }
             
-            public func serialize() throws -> JSON {
+        }
+        
+        public enum Tool: STJSONEncodable {
+            
+            case function(FunctionChoice)
+        
+            public init(function: OAIChatCompletion.Function) {
+                self = .function(.init(function: function))
+            }
+            
+            public func encode() throws -> JSON {
                 switch self {
-                case .auto:
-                    return .init("auto")
-                case .none:
-                    return .init("none")
-                case .function(let name):
-                    return .init(["name": name])
+                case .function(let choice):
+                    return try choice.encode()
+                }
+            }
+            
+        }
+        
+        public struct TextMessage: Codable, Equatable, ExpressibleByStringLiteral {
+           public var type: String = "text"
+           public var text: String
+            
+           public init(text: String) {
+               self.text = text
+            }
+            
+            public init(stringLiteral value: String) {
+                self.text = value
+            }
+        }
+        
+        public struct ImageURL: Codable, Equatable {
+            var url: String
+            public init(url: String) {
+                self.url = url
+            }
+        }
+                
+        public struct ImageURLMessage: Codable, Equatable, ExpressibleByStringLiteral {
+            public var type: String = "image_url"
+            public var image_url: ImageURL
+            
+            public init(image_url: ImageURL) {
+                self.image_url = image_url
+            }
+            
+            public init(stringLiteral value: String) {
+                self.image_url = .init(url: value)
+            }
+        }
+        
+        public enum MessageChoice: Codable, Equatable {
+            
+            case text(TextMessage)
+            case image_url(ImageURLMessage)
+            
+            public func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                switch self {
+                case .text(let value):
+                    try container.encode(value)
+                case .image_url(let value):
+                    try container.encode(value)
+                }
+            }
+            
+            public init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+                if let value = try? container.decode(TextMessage.self) {
+                    self = .text(value)
+                } else if let value = try? container.decode(ImageURLMessage.self) {
+                    self = .image_url(value)
+                } else {
+                    throw OAIError.decode_data
                 }
             }
         }
         
+        /// 此功能处于测试阶段。如果指定，我们的系统将尽最大努力确定性地进行采样，以便具有相同 和 参数的重复请求应返回相同的结果。不能保证确定性，您应该参考 response 参数来监视后端的变化。
+        public var seed: Int?
+        public var tools: [Tool]?
+        public var tool_choice: ToolChoice?
         /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
         public var model: OAIGPTModel = .gpt35Turbo16K
         /// The messages to generate chat completions for
-        public var messages: [OAIChatCompletion.Message] = []
-        /// A list of functions the model may generate JSON inputs for.
-        public var functions: [OAIChatCompletion.Function] = []
-        /// Controls how the model responds to function calls. "none" means the model does not call a function, and responds to the end-user. "auto" means the model can pick between an end-user or calling a function. Specifying a particular function via {"name":\ "my_function"} forces the model to call that function. "none" is the default when no functions are present. "auto" is the default if functions are present.
-        public var function_call: FunctionCall?
+        public var messages: [OAIChatCompletion.MessageItem<[MessageChoice]>] = []
         /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
         public var temperature: Double?
         /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
@@ -320,10 +505,8 @@ public struct OAIChatCompletionAPIs {
             dict["n"] = n
             dict["top_p"] = top_p
             dict["temperature"] = temperature
-            dict["function_call"] = try function_call?.serialize()
-            if !functions.isEmpty {
-                dict["functions"] = try functions.map({ try $0.serialize() })
-            }
+            dict["tool_choice"] = try tool_choice?.encode()
+            dict["tools"] = try tools?.map({ try $0.encode() })
             dict["messages"] = try messages.map({ try $0.encode() })
             dict["model"] = model.name
             return .init(dict)
@@ -348,6 +531,7 @@ public struct OAIChatCompletionAPIs {
         return try client.decode(data)
     }
     
+    
     public func create(stream parameter: CreateParameter) async throws -> AsyncThrowingStream<OAIChatCompletion, Error> {
         var request = client.request(of: serivce, path: "v1/chat/completions")
         request.method = .post
@@ -356,18 +540,13 @@ public struct OAIChatCompletionAPIs {
         let request_body = try client.encode(parameter)
         let (stream, continuation) = AsyncThrowingStream<OAIChatCompletion, Error>.makeStream()
         let data_stream = try client.stream(for: request, from: request_body)
-        
-        var completion = OAIChatCompletion(id: "",
-                                           object: .chat_completion_chunk,
-                                           created: .zero,
-                                           model: "",
-                                           choices: [],
-                                           usage: .init())
+        let streamMerge = OAIChatCompletionStreamMerge()
         
         do {
             for try await data in data_stream {
-                completion = try merge(completion: client.decode(data), to: completion)
-                continuation.yield(completion)
+                let chunks = try streamMerge.chunk(of: data.data)
+                streamMerge.merge(chunks)
+                continuation.yield(streamMerge.completion)
             }
             continuation.finish()
         } catch {
@@ -375,53 +554,6 @@ public struct OAIChatCompletionAPIs {
             continuation.finish(throwing: error)
         }
         return stream
-    }
-    
-}
-
-public extension OAIChatCompletionAPIs {
-    
-    func merge(completion: OAIChatCompletion, to raw: OAIChatCompletion) -> OAIChatCompletion {
-        var raw = raw
-        raw.id = completion.id
-        raw.object = completion.object
-        raw.created = completion.created
-        raw.model = completion.model
-        if raw.usage == nil { raw.usage = completion.usage }
-        var raw_store = [Int: OAIChatCompletion.Choice]()
-        var store = [Int: OAIChatCompletion.Choice]()
-        raw.choices.forEach { choice in
-            raw_store[choice.index] = choice
-        }
-        completion.choices.forEach { choice in
-            store[choice.index] = choice
-        }
-        
-        var choices = [Int: OAIChatCompletion.Choice]()
-        raw_store.forEach { (key, value) in
-            var value = value
-            if let delta = store[key] {
-                value.finish_reason = delta.finish_reason
-                if let delta_message = delta.delta {
-                    value.message.content += delta_message.content
-                    value.message.role = delta_message.role.isEmpty ? value.message.role : delta_message.role
-                }
-                store[key] = nil
-            }
-            choices[key] = value
-        }
-        raw_store.removeAll()
-        
-        store.forEach { (key, value) in
-            var value = value
-            value.message = value.delta ?? value.message
-            value.delta = nil
-            choices[key] = value
-        }
-        store.removeAll()
-        
-        raw.choices = choices.map(\.value).sorted(by: { $0.index < $1.index })
-        return raw
     }
     
 }
