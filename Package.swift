@@ -11,7 +11,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-http-types.git", .upToNextMajor(from: "1.0.0")),
-        .package(url: "https://github.com/linhay/STJSON", .upToNextMajor(from: "1.0.5"))
+        .package(url: "https://github.com/linhay/STJSON", .upToNextMajor(from: "1.0.6"))
     ],
     targets: [
         .target(name: "OpenAICore",

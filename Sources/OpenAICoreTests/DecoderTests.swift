@@ -12,7 +12,7 @@ import STJSON
 final class DecoderTests: XCTestCase {
 
     func test_chat_completion() throws {
-        let object = try JSONDecoder.shared.decode(OAIChatCompletion.self, from: #"""
+        let object = try JSONDecoder.decode(OAIChatCompletion.self, from: #"""
 {
   "id": "chatcmpl-123",
   "object": "chat.completion",
@@ -108,7 +108,7 @@ final class DecoderTests: XCTestCase {
  """#))
         
         
-        let object = try JSONDecoder.shared.decode(OAIChatCompletion.self, from: #"""
+        let object = try JSONDecoder.decode(OAIChatCompletion.self, from: #"""
 {
   "id": "chatcmpl-8LqLlQFfCirQa4Go69yhLF4JyKhxD",
   "object": "chat.completion",
