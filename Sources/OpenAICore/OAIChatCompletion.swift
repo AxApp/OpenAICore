@@ -71,6 +71,14 @@ public struct OAIChatCompletion: Codable {
             self.parameters = JSON(parseJSON: parameters ?? "")
         }
         
+        public init(name: String = "",
+                    description: String? = nil,
+                    parameters: JSON) {
+            self.name = name
+            self.description = description
+            self.parameters = parameters
+        }
+        
         public init(from json: JSON) {
             self.name        = json["name"].stringValue
             self.description = json["description"].string
@@ -413,7 +421,7 @@ public struct OAIChatCompletionAPIs {
            public var type: String = "text"
            public var text: String
             
-           public init(text: String) {
+           public init(_ text: String) {
                self.text = text
             }
             
@@ -562,6 +570,44 @@ public struct OAIChatCompletionAPIs {
             continuation.finish(throwing: error)
         }
         return stream
+    }
+    
+}
+
+public extension OAIChatCompletion {
+    
+    public struct CallBack {
+        public let completion: OAIChatCompletion
+        
+        public var functions: [FunctionCall] {
+            completion.choices.compactMap(\.message.tool_calls).joined().map(\.function)
+        }
+        
+        public var contents: [String] {
+            completion.choices.compactMap(\.message.content)
+        }
+    }
+    
+    var callback: CallBack { .init(completion: self) }
+    
+}
+
+public extension OAIChatCompletion.FunctionCall {
+    
+    var json: JSON { JSON(parseJSON: arguments) }
+    var data: Data { arguments.data(using: .utf8) ?? .init() }
+    
+}
+
+public extension OAIChatCompletionAPIs.CreateParameter {
+    
+    mutating func set(singleFunction function: OAIChatCompletion.Function) {
+        self.tools = [.init(function: function)]
+        self.tool_choice = .function(.init(function: .init(name: function.name)))
+    }
+    
+    mutating func append(message content: String, role: OAIChatCompletion.Role) {
+        self.messages.append(.init(role: role, content: [.text(.init(content))]))
     }
     
 }
