@@ -8,6 +8,9 @@
 import Foundation
 import STJSON
 
+public typealias OAIChatQuery  = OAIChatCompletionAPIs.CreateParameter
+public typealias OAIChatResult = OAIChatCompletion
+
 public struct OAIChatCompletion: Codable {
     
     public typealias Message = MessageItem<String>
@@ -268,10 +271,16 @@ public class OAIChatCompletionStreamMerge {
         var chunks = [Chunk]()
         let dataTag = "data:"
         for line in lines {
+            print(line.description)
             if line == "data: [DONE]" {
                 chunks.append(.done)
+            } else if line == "[DONE]" {
+                chunks.append(.done)
             } else if line.hasPrefix(dataTag), let data = String(line.dropFirst(dataTag.count)).data(using: .utf8) {
-                let completion = try JSONDecoder.shared.decode(OAIChatCompletion.self, from: data)
+                let completion = try JSONDecoder.shared.decode(OAIChatResult.self, from: data)
+                chunks.append(.completion(completion))
+            } else if let data = line.data(using: .utf8) {
+                let completion = try JSONDecoder.shared.decode(OAIChatResult.self, from: data)
                 chunks.append(.completion(completion))
             }
         }
@@ -350,11 +359,13 @@ public struct OAIChatCompletionAPIs {
     }
     
     public enum ResponseFormat: String, Codable {
-        case json
+        case json_object
     }
     
     public struct CreateParameter: STJSONEncodable {
         
+        public typealias Message = OAIChatCompletion.MessageItem<[MessageChoice]>
+
         public struct FunctionItem: Equatable, Hashable, Codable {
             public let name: String
             
@@ -455,6 +466,10 @@ public struct OAIChatCompletionAPIs {
             case text(TextMessage)
             case image_url(ImageURLMessage)
             
+            public static func text(_ text: String) -> MessageChoice {
+                .text(TextMessage.init(text))
+            }
+            
             public func encode(to encoder: Encoder) throws {
                 var container = encoder.singleValueContainer()
                 switch self {
@@ -483,9 +498,9 @@ public struct OAIChatCompletionAPIs {
         public var tools: [Tool]?
         public var tool_choice: ToolChoice?
         /// ID of the model to use. Currently, only gpt-3.5-turbo and gpt-3.5-turbo-0301 are supported.
-        public var model: OAIGPTModel = .gpt35Turbo16K
+        public var model: OAIGPTModel = .gpt35_turbo
         /// The messages to generate chat completions for
-        public var messages: [OAIChatCompletion.MessageItem<[MessageChoice]>] = []
+        public var messages: [Message] = []
         /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and  We generally recommend altering this or top_p but not both.
         public var temperature: Double?
         /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
@@ -576,7 +591,7 @@ public struct OAIChatCompletionAPIs {
 
 public extension OAIChatCompletion {
     
-    public struct CallBack {
+    struct CallBack {
         public let completion: OAIChatCompletion
         
         public var functions: [FunctionCall] {
@@ -602,8 +617,16 @@ public extension OAIChatCompletion.FunctionCall {
 public extension OAIChatCompletionAPIs.CreateParameter {
     
     mutating func set(singleFunction function: OAIChatCompletion.Function) {
-        self.tools = [.init(function: function)]
-        self.tool_choice = .function(.init(function: .init(name: function.name)))
+        functions([function])
+        tool_choice(function: function.name)
+    }
+    
+    mutating func functions(_ functions: [OAIChatCompletion.Function]) {
+        self.tools = functions.map({ .init(function: $0) })
+    }
+    
+    mutating func tool_choice(function name: String) {
+        self.tool_choice = .function(.init(function: .init(name: name)))
     }
     
     mutating func append(message content: String, role: OAIChatCompletion.Role) {
