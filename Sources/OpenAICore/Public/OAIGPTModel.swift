@@ -19,6 +19,20 @@ public struct OAIGPTModel: Equatable, Codable, Hashable {
         self.trainingData = trainingData
     }
     
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self.name)
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let name = try container.decode(String.self)
+        self.name = name
+        let cache = OAIGPTModel.allMap[name]
+        self.token = cache?.token ?? 0
+        self.trainingData = cache?.trainingData ?? ""
+    }
+    
 }
 
 public extension OAIGPTModel {

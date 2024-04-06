@@ -10,8 +10,9 @@ import Foundation
 
 public struct OAIHost: RawRepresentable, Codable, Equatable {
     
-    public static let openAI = OAIHost(rawValue: "https://api.openai.com")
-    
+    public static let openAI   = OAIHost(rawValue: "https://api.openai.com")
+    public static let moonshot = OAIHost(rawValue: "https://api.moonshot.cn/v1")
+
     public let rawValue: String
     
     public init(rawValue: String) {

@@ -83,10 +83,6 @@ public extension OAIClientProtocol {
     
 }
 
-private extension HTTPField.Name {
-    static let organization = Self("OpenAI-Organization")!
-}
-
 public extension OAIClientProtocol {
         
     func add(queries: [(name: String, value: String)], to request: HTTPRequest) -> HTTPRequest {
@@ -100,7 +96,7 @@ public extension OAIClientProtocol {
         return request
     }
     
-    func request(of serivce: OAISerivce, path: String) -> HTTPRequest {
+    func request(of serivce: LLMSerivce, path: String) -> HTTPRequest {
         var request = HTTPRequest(method: .get, url: URL(string: serivce.host.rawValue) ?? URL(string: OAIHost.openAI.rawValue)!)
         var path = path
         if !path.hasPrefix("/") {
@@ -109,9 +105,7 @@ public extension OAIClientProtocol {
         request.path = path
         request.headerFields[.contentType] = "application/json"
         request.headerFields[.authorization] = "Bearer \(serivce.token)"
-        if !serivce.organization.isEmpty {
-            request.headerFields[.organization] = serivce.organization
-        }
+        request.headerFields = serivce.edit(headerFields: request.headerFields)
         return request
     }
     

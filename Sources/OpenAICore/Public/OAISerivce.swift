@@ -6,8 +6,13 @@
 //
 
 import Foundation
+import HTTPTypes
 
-public struct OAISerivce: Codable, Equatable {
+private extension HTTPField.Name {
+    static let organization = Self("OpenAI-Organization")!
+}
+
+public struct OAISerivce: LLMSerivce, Codable, Equatable {
     
     public var token: String
     public var organization: String
@@ -19,6 +24,14 @@ public struct OAISerivce: Codable, Equatable {
         self.token = token
         self.organization = organization
         self.host = host ?? .openAI
+    }
+    
+    public func edit(headerFields: HTTPFields) -> HTTPFields {
+        var headerFields = headerFields
+        if !organization.isEmpty {
+            headerFields[.organization] = organization
+        }
+        return headerFields
     }
     
     public static let none = OAISerivce(token: "")
