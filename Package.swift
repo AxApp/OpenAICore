@@ -14,9 +14,9 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-http-types.git", .upToNextMajor(from: "1.0.0")),
         .package(url: "https://github.com/linhay/STJSON", .upToNextMajor(from: "1.1.3")),
 //        .package(path: "/Users/linhey/Desktop/STJSON"),
-        .package(url: "https://github.com/linhay/Tiktoken", .upToNextMajor(from: "0.0.4")),
+        .package(url: "https://github.com/linhay/Tiktoken", .upToNextMajor(from: "0.0.5")),
         .package(url: "https://github.com/Flight-School/AnyCodable", .upToNextMajor(from: "0.6.7")),
-        // .package(path: "../Tiktoken"),
+//         .package(path: "../Tiktoken"),
     ],
     targets: [
         .target(name: "OpenAICore",

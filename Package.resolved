@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/linhay/Tiktoken",
       "state" : {
-        "revision" : "f7e6846a84c4dcf51d9ffa10fd6e705807d3fdda",
-        "version" : "0.0.4"
+        "revision" : "7ffc8b99b13fead2e83c85871c540705210a5264",
+        "version" : "0.0.5"
       }
     }
   ],
