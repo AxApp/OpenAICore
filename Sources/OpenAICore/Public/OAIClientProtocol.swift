@@ -84,18 +84,22 @@ public extension OAIClientProtocol {
 }
 
 public extension OAIClientProtocol {
-        
-    func add(queries: [(name: String, value: String)], to request: HTTPRequest) -> HTTPRequest {
+
+    func add(queries: [String: String], to request: HTTPRequest) -> HTTPRequest {
         var request = request
         if !queries.isEmpty {
             if request.path?.contains("?") == false {
                 request.path?.append("?")
             }
-            request.path?.append(queries.map({ "\($0.name)=\($0.value)" }).joined(separator: "&"))
+            
+            request.path?.append(queries
+                .compactMapValues({ $0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) })
+                .map({ "\($0.key)=\($0.value)" })
+                .joined(separator: "&"))
         }
         return request
     }
-    
+
     func request(of serivce: LLMSerivce, path: String) -> HTTPRequest {
         var request = HTTPRequest(method: .get, url: URL(string: serivce.host.rawValue) ?? URL(string: OAIHost.openAI.rawValue)!)
         var path = path

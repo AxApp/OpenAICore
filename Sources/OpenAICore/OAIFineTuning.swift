@@ -83,10 +83,10 @@ struct OAIPager {
     func apply(client: OAIClientProtocol, request: HTTPRequest) -> HTTPRequest {
         var request = request
         if let after = after {
-            request = client.add(queries: [(name: "after", value: after)], to: request)
+            request = client.add(queries: ["after": after], to: request)
         }
         if let limit = limit {
-            request = client.add(queries: [(name: "limit", value: "\(limit)")], to: request)
+            request = client.add(queries: ["limit": "\(limit)"], to: request)
         }
         return request
     }

@@ -109,7 +109,7 @@ final class DecoderTests: XCTestCase {
         let object = try JSONDecoder.decode(OAIChatCompletion.CreateParameter.self, from: json)
         XCTAssert(object.model == .gpt35_turbo)
         XCTAssert(object.messages.count == 1)
-        XCTAssert(object.tools! == [.function(.init(name: "get_current_weather",
+        XCTAssert(object.tools == [.function(.init(name: "get_current_weather",
                                                    description: "Get the current weather in a given location",
                                                    parameters: [
                                                     "type": "object",
