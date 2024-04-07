@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol LLMAgent {
-    associatedtype Input: Codable
-    associatedtype Output: Codable
+    associatedtype Input
+    associatedtype Output
     func run(_ input: Input) async throws -> Output
 }

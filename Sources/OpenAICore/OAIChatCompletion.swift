@@ -51,9 +51,16 @@ public struct OAIChatCompletion: Codable {
 
 public extension OAIChatCompletion {
     
-    enum RequestResponseFormat: String, Codable {
+    enum ResponseFormatType: String, Codable {
         case text
         case json_object
+    }
+    
+    struct ResponseFormat: Codable {
+       public let type: ResponseFormatType
+        public init(type: ResponseFormatType) {
+            self.type = type
+        }
     }
     
     enum UserMessageTextContentType: String, Codable {
@@ -400,7 +407,7 @@ public extension OAIChatCompletion {
         public var n: Int?
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
         public var presence_penalty: Double?
-        public var response_format: RequestResponseFormat?
+        public var response_format: ResponseFormat?
         /// 此功能处于测试阶段。如果指定，我们的系统将尽最大努力确定性地进行采样，以便具有相同 和 参数的重复请求应返回相同的结果。不能保证确定性，您应该参考 response 参数来监视后端的变化。
         public var seed: Int?
         /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
@@ -425,6 +432,71 @@ public extension OAIChatCompletion {
             var item = Self.init()
             build(&item)
             return item
+        }
+        
+        enum CodingKeys: CodingKey {
+            case messages
+            case model
+            case frequency_penalty
+            case logit_bias
+            case logprobs
+            case top_logprobs
+            case max_tokens
+            case n
+            case presence_penalty
+            case response_format
+            case seed
+            case stop
+            case stream
+            case temperature
+            case top_p
+            case tools
+            case tool_choice
+            case user
+        }
+        
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(messages, forKey: .messages)
+            try container.encode(model, forKey: .model)
+            try container.encodeIfPresent(frequency_penalty, forKey: .frequency_penalty)
+            try container.encodeIfPresent(logit_bias, forKey: .logit_bias)
+            try container.encodeIfPresent(logprobs, forKey: .logprobs)
+            try container.encodeIfPresent(top_logprobs, forKey: .top_logprobs)
+            try container.encodeIfPresent(max_tokens, forKey: .max_tokens)
+            try container.encodeIfPresent(n, forKey: .n)
+            try container.encodeIfPresent(presence_penalty, forKey: .presence_penalty)
+            try container.encodeIfPresent(response_format, forKey: .response_format)
+            try container.encodeIfPresent(seed, forKey: .seed)
+            try container.encodeIfPresent(stop, forKey: .stop)
+            try container.encodeIfPresent(stream, forKey: .stream)
+            try container.encodeIfPresent(temperature, forKey: .temperature)
+            try container.encodeIfPresent(top_p, forKey: .top_p)
+            try container.encodeIfPresent(tools.isEmpty ? nil : tools, forKey: .tools)
+            try container.encodeIfPresent(tool_choice, forKey: .tool_choice)
+            try container.encodeIfPresent(user, forKey: .user)
+        }
+        
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.messages = try container.decode([RequestMessage].self, forKey: .messages)
+            self.model = try container.decode(OAIGPTModel.self, forKey: .model)
+            self.frequency_penalty = try container.decodeIfPresent(Double.self, forKey: .frequency_penalty)
+            self.logit_bias = try container.decodeIfPresent([String : Int].self, forKey: .logit_bias)
+            self.logprobs = try container.decodeIfPresent(Bool.self, forKey: .logprobs)
+            self.top_logprobs = try container.decodeIfPresent(Int.self, forKey: .top_logprobs)
+            self.max_tokens = try container.decodeIfPresent(Int.self, forKey: .max_tokens)
+            self.n = try container.decodeIfPresent(Int.self, forKey: .n)
+            self.presence_penalty = try container.decodeIfPresent(Double.self, forKey: .presence_penalty)
+            self.response_format = try container.decodeIfPresent(ResponseFormat.self, forKey: .response_format)
+            self.seed = try container.decodeIfPresent(Int.self, forKey: .seed)
+            self.stop = try container.decodeIfPresent([String].self, forKey: .stop)
+            self.stream = try container.decodeIfPresent(Bool.self, forKey: .stream)
+            self.temperature = try container.decodeIfPresent(Double.self, forKey: .temperature)
+            self.top_p = try container.decodeIfPresent(Double.self, forKey: .top_p)
+            self.tools = try container.decodeIfPresent([RequestTool].self, forKey: .tools) ?? []
+            self.tool_choice = try container.decodeIfPresent(ToolChoice.self, forKey: .tool_choice)
+            self.user = try container.decodeIfPresent(String.self, forKey: .user)
         }
     }
     

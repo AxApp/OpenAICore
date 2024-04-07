@@ -15,14 +15,14 @@ public protocol TextSplitter: DocumentTransformer {
 
 public extension TextSplitter {
     /// Create documents from a list of texts.
-    func createDocuments(texts: [String], metadata: [Document.Metadata] = []) async throws -> [Document] {
-        var documents = [Document]()
+    func createDocuments(texts: [String], metadata: [LLMDocument.Metadata] = []) async throws -> [LLMDocument] {
+        var documents = [LLMDocument]()
         let paddingLength = texts.count - metadata.count
         let metadata = metadata + .init(repeating: [:], count: paddingLength)
         for (text, metadata) in zip(texts, metadata) {
             let chunks = try await split(text: text)
             for chunk in chunks {
-                let document = Document(pageContent: chunk.text, metadata: metadata)
+                let document = LLMDocument(content: chunk.text, metadata: metadata)
                 documents.append(document)
             }
         }
@@ -30,18 +30,18 @@ public extension TextSplitter {
     }
 
     /// Split documents.
-    func splitDocuments(_ documents: [Document]) async throws -> [Document] {
+    func splitDocuments(_ documents: [LLMDocument]) async throws -> [LLMDocument] {
         var texts = [String]()
-        var metadata = [Document.Metadata]()
+        var metadata = [LLMDocument.Metadata]()
         for document in documents {
-            texts.append(document.pageContent)
+            texts.append(document.content)
             metadata.append(document.metadata)
         }
         return try await createDocuments(texts: texts, metadata: metadata)
     }
 
     /// Transform sequence of documents by splitting them.
-    func transformDocuments(_ documents: [Document]) async throws -> [Document] {
+    func transformDocuments(_ documents: [LLMDocument]) async throws -> [LLMDocument] {
         return try await splitDocuments(documents)
     }
 }
