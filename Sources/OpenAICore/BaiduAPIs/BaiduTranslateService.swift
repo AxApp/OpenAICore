@@ -10,13 +10,14 @@ import HTTPTypes
 
 public struct BaiduTranslateService {
     
-    public let host: OAIHost = .baidu_fanyi
-    public let appID: String
-    public let appKey: String
+    public var host: OAIHost
+    public var appID: String
+    public var appKey: String
     
-    public init(appID: String, appKey: String) {
+    public init(appID: String, appKey: String, host: OAIHost = .baidu_fanyi) {
         self.appID = appID
         self.appKey = appKey
+        self.host = host
     }
    
 }
