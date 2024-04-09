@@ -349,7 +349,8 @@ public struct TextSplitterSeparatorSet: ExpressibleByArrayLiteral {
     }
 
     public static var paper: TextSplitterSeparatorSet {
-        ["\n\n", "\r\n", "\n", "\r", " ", "", ".", "。", "?", "!"]
+        [[String](repeating: " ", count: 50).joined(),
+         "\n\n", "\r\n", "\n", "\r", " ", "", ".", "。", "?", "!"]
     }
     
     public static var `default`: TextSplitterSeparatorSet {
