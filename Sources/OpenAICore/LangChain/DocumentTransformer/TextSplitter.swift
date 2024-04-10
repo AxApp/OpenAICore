@@ -22,7 +22,7 @@ public extension TextSplitter {
         for (text, metadata) in zip(texts, metadata) {
             let chunks = try await split(text: text)
             for chunk in chunks {
-                let document = LLMDocument(content: chunk.text, metadata: metadata)
+                let document = LLMDocument(chunk.text, metadata: metadata)
                 documents.append(document)
             }
         }
@@ -34,7 +34,7 @@ public extension TextSplitter {
         var texts = [String]()
         var metadata = [LLMDocument.Metadata]()
         for document in documents {
-            texts.append(document.content)
+            texts.append(document.text)
             metadata.append(document.metadata)
         }
         return try await createDocuments(texts: texts, metadata: metadata)

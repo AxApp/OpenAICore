@@ -10,30 +10,29 @@ import AnyCodable
 import Tiktoken
 import Crypto
 
-public struct LLMDocument: Codable {
-    
+public struct LLMDocument: LLMTextNode, Codable {
     public typealias Metadata = [String: AnyCodable]
-    public var content: String
+    public var text: String
     public var metadata: Metadata
-    public init(content: String, metadata: Metadata = .init()) {
-        self.content = content
+    public init(_ text: String, metadata: Metadata = .init()) {
+        self.text = text
         self.metadata = metadata
     }
 }
 
-public extension LLMDocument {
+
+public struct LLMPromptTemplate: LLMTextNode, ExpressibleByStringLiteral {
     
-    func tiktoken(_ name: Tiktoken.EncodeName) async throws -> Int {
-        try await Tiktoken.shared.getEncoding(name)?.encode(value: content).count ?? 0
+    public let text: String
+    public let hash: String
+    
+    public init(stringLiteral value: String) {
+        self.init(text: value)
     }
     
-    func hash(_ hasher: any HashFunction.Type = SHA256.self) -> String? {
-        guard let data = content.data(using: .utf8) else {
-            return nil
-        }
-        return hasher.hash(data: data)
-            .compactMap { String(format: "%02x", $0) }
-            .joined()
+    public init(text: String) {
+        self.text = text
+        self.hash = Self.hash(text) ?? ""
     }
     
 }
