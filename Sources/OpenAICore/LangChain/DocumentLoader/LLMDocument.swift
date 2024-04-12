@@ -10,29 +10,29 @@ import AnyCodable
 import Tiktoken
 import Crypto
 
-public struct LLMDocument: LLMTextNode, Codable {
+public actor LLMDocument: LLMTextNode, ExpressibleByStringLiteral {
+    
     public typealias Metadata = [String: AnyCodable]
-    public var text: String
-    public var metadata: Metadata
+    public let text: String
+    public let metadata: Metadata
+    private var _hash: String?
+    
+    public convenience init(stringLiteral value: StringLiteralType) {
+        self.init(value)
+    }
+
     public init(_ text: String, metadata: Metadata = .init()) {
         self.text = text
         self.metadata = metadata
     }
-}
-
-
-public struct LLMPromptTemplate: LLMTextNode, ExpressibleByStringLiteral {
     
-    public let text: String
-    public let hash: String
-    
-    public init(stringLiteral value: String) {
-        self.init(text: value)
-    }
-    
-    public init(text: String) {
-        self.text = text
-        self.hash = Self.hash(text) ?? ""
+    public func hash(_ hasher: any HashFunction.Type = SHA256.self) async throws -> String {
+        if let _hash = await _hash {
+            return _hash
+        }
+        let hash = try Self.hash(text, hasher)
+        _hash = hash
+        return hash
     }
     
 }
