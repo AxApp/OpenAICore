@@ -549,6 +549,14 @@ public extension OAIChatCompletion {
         public var delta: ResponseChunkMessage
         public var logprobs: LogProbability
         public var finish_reason: FinishReason?
+        
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.index = try container.decode(Int.self, forKey: CodingKeys.index)
+            self.delta = try container.decode(ResponseChunkMessage.self, forKey: .delta)
+            self.logprobs = try container.decodeIfPresent(LogProbability.self, forKey: .logprobs) ?? .init(content: [])
+            self.finish_reason = try container.decodeIfPresent(FinishReason.self, forKey: .finish_reason)
+        }
     }
     
     struct Choice: Codable, Equatable {

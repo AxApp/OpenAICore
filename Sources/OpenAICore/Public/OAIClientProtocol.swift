@@ -39,7 +39,7 @@ public protocol OAIClientProtocol {
     
     func data(for request: HTTPRequest) async throws -> OAIClientResponse
     func upload(for request: HTTPRequest, from bodyData: Data) async throws -> OAIClientResponse
-    func stream(for request: HTTPRequest, from bodyData: Data) throws -> AsyncThrowingStream<OAIClientResponse, Error>
+    func serverSendEvent(for request: HTTPRequest, from bodyData: Data, failure: (_ response: OAIClientResponse) async throws -> Void) async throws -> AsyncThrowingStream<Data, Error>
 }
 
 public extension OAIClientProtocol {

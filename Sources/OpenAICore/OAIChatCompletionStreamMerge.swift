@@ -9,27 +9,47 @@ import Foundation
 
 public actor OAIChatCompletionStreamMerge {
     
+    public enum Kind {
+        case chunk(OAIChatCompletion.CreateChunkResponse)
+        case finish
+        case other(Data)
+    }
+    
     public var chunks = [OAIChatCompletion.CreateChunkResponse]()
-    public var isDone = false
     
     public init() { }
-    
-    public func append(chunk data: Data) throws {
-        guard let eventString = String(data: data, encoding: .utf8) else { return }
+
+    public func parse(chunk data: Data) throws -> [Kind] {
+        guard let eventString = String(data: data, encoding: .utf8) else { return [.other(data)] }
+        var kinds = [Kind]()
         for message in SSEParser.parse(from: eventString) {
             switch message.kind {
             case .data:
                 if message.value == "[DONE]" {
-                    isDone = true
+                    kinds.append(.finish)
                 } else {
-                    let completion = try JSONDecoder.shared.decode(OAIChatCompletion.CreateChunkResponse.self, from: data)
-                    chunks.append(completion)
+                    let completion = try JSONDecoder.decode(OAIChatCompletion.CreateChunkResponse.self, from: message.value)
+                    kinds.append(.chunk(completion))
                 }
             case .id:
                 break
             case .event:
                 break
             case .comment:
+                break
+            }
+        }
+        return kinds
+    }
+    
+    public func append(chunk data: Data) throws {
+        for chunk in try self.parse(chunk: data) {
+            switch chunk {
+            case .chunk(let completion):
+                chunks.append(completion)
+            case .finish:
+                break
+            case .other(let data):
                 break
             }
         }
@@ -60,6 +80,7 @@ public actor OAIChatCompletionStreamMerge {
                 if let tool_calls = choice.delta.tool_calls {
                     raw.delta.tool_calls = tool_calls
                 }
+                raw_store[choice.index] = raw
             } else {
                 raw_store[choice.index] = choice
             }

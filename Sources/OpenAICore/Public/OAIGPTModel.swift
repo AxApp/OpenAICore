@@ -85,3 +85,13 @@ public extension OAIGPTModel {
     static let gpt35_turbo_instruct = OAIGPTModel(token: 4096, trainingData: "Up to Sep 2021",  name: "gpt-3.5-turbo-instruct")
     
 }
+
+// GPT 3.5
+public extension OAIGPTModel {
+    
+    static let moonshots: [OAIGPTModel] = [.moonshot_v1_8k, .moonshot_v1_32k, .moonshot_v1_128k]
+    static let moonshot_v1_8k   = OAIGPTModel(token: 8192, trainingData: "", name: "moonshot-v1-8k")
+    static let moonshot_v1_32k  = OAIGPTModel(token: 32770, trainingData: "", name: "moonshot-v1-32k")
+    static let moonshot_v1_128k = OAIGPTModel(token: 128000, trainingData: "", name: "moonshot-v1-128k")
+    
+}
