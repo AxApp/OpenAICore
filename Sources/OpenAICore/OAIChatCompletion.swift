@@ -395,7 +395,7 @@ public extension OAIChatCompletion {
     struct CreateParameter: Codable {
         
         public var messages: [RequestMessage] = []
-        public var model: OAIGPTModel = .gpt35_turbo
+        public var model: LLMModel = .gpt35_turbo
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
         public var frequency_penalty: Double?
         ///Modify the likelihood of specified tokens appearing in the completion.
@@ -480,7 +480,7 @@ public extension OAIChatCompletion {
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             self.messages = try container.decode([RequestMessage].self, forKey: .messages)
-            self.model = try container.decode(OAIGPTModel.self, forKey: .model)
+            self.model = try container.decode(LLMModel.self, forKey: .model)
             self.frequency_penalty = try container.decodeIfPresent(Double.self, forKey: .frequency_penalty)
             self.logit_bias = try container.decodeIfPresent([String : Int].self, forKey: .logit_bias)
             self.logprobs = try container.decodeIfPresent(Bool.self, forKey: .logprobs)
