@@ -17,7 +17,7 @@ public actor LLMDocument: LLMTextNode, ExpressibleByStringLiteral {
     public let metadata: Metadata
     private var _hash: String?
     
-    public convenience init(stringLiteral value: StringLiteralType) {
+    public init(stringLiteral value: StringLiteralType) {
         self.init(value)
     }
 
@@ -27,7 +27,7 @@ public actor LLMDocument: LLMTextNode, ExpressibleByStringLiteral {
     }
     
     public func hash(_ hasher: any HashFunction.Type = SHA256.self) async throws -> String {
-        if let _hash = await _hash {
+        if let _hash = _hash {
             return _hash
         }
         let hash = try Self.hash(text, hasher)

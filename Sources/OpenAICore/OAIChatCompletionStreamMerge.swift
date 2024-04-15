@@ -10,7 +10,7 @@ import Foundation
 public actor OAIChatCompletionStreamMerge {
     
     public enum Kind {
-        case chunk(OAIChatCompletion.CreateChunkResponse)
+        case chunk(Data)
         case finish
         case other(Data)
     }
@@ -28,8 +28,7 @@ public actor OAIChatCompletionStreamMerge {
                 if message.value == "[DONE]" {
                     kinds.append(.finish)
                 } else {
-                    let completion = try JSONDecoder.decode(OAIChatCompletion.CreateChunkResponse.self, from: message.value)
-                    kinds.append(.chunk(completion))
+                    kinds.append(.chunk(message.value.data(using: .utf8) ?? .init()))
                 }
             case .id:
                 break
@@ -42,17 +41,8 @@ public actor OAIChatCompletionStreamMerge {
         return kinds
     }
     
-    public func append(chunk data: Data) throws {
-        for chunk in try self.parse(chunk: data) {
-            switch chunk {
-            case .chunk(let completion):
-                chunks.append(completion)
-            case .finish:
-                break
-            case .other(let data):
-                break
-            }
-        }
+    public func append(_ item: OAIChatCompletion.CreateChunkResponse) {
+        self.chunks.append(item)
     }
     
     public func merge() -> OAIChatCompletion.CreateResponse {

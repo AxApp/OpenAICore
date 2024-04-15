@@ -7,12 +7,13 @@
 
 import Foundation
 
-
 public struct OAIHost: RawRepresentable, Codable, Equatable {
     
     public static let openAI      = OAIHost(rawValue: "https://api.openai.com")
     public static let moonshot    = OAIHost(rawValue: "https://api.moonshot.cn")
     public static let baidu_fanyi = OAIHost(rawValue: "https://fanyi-api.baidu.com")
+    public static let qwen        = OAIHost(rawValue: "https://dashscope.aliyuncs.com")
+    public static let open_router = OAIHost(rawValue: "https://openrouter.ai")
 
     public let rawValue: String
     

@@ -13,16 +13,18 @@ public struct OAIChatCompletionAPIs {
     
     public let client: OAIClientProtocol
     public let serivce: OAISerivce
+    public let create_path: String
     
-    public init(client: OAIClientProtocol, serivce: OAISerivce) {
+    public init(client: OAIClientProtocol, serivce: OAISerivce, create_path: String = "v1/chat/completions") {
         self.client = client
         self.serivce = serivce
+        self.create_path = create_path
     }
 
     public func create<Returning: Codable>(_ parameter: Codable, returning: Returning.Type) async throws -> Returning {
-        var request = client.request(of: serivce, path: "v1/chat/completions")
+        var request = client.request(of: serivce, path: create_path)
         request.method = .post
-        var parameter = parameter
+        let parameter = parameter
         let request_body = try client.encode(parameter)
         let data = try await client.upload(for: request, from: request_body)
         return try client.decode(data)
@@ -35,7 +37,7 @@ public struct OAIChatCompletionAPIs {
     }
 
     public func create(dataStream parameter: Codable) async throws -> AsyncThrowingStream<Data, Error> {
-        var request = client.request(of: serivce, path: "v1/chat/completions")
+        var request = client.request(of: serivce, path: create_path)
         request.method = .post
         let request_body = try client.encode(parameter)
         let (stream, continuation) = AsyncThrowingStream<Data, Error>.makeStream()
@@ -59,18 +61,25 @@ public struct OAIChatCompletionAPIs {
         return stream
     }
     
-    public func create(stream parameter: OAIChatCompletion.CreateParameter) async throws -> AsyncThrowingStream<OAIChatCompletion.CreateResponse, Error> {
-        var parameter = parameter
-        parameter.stream = true
+    public func stream(_ parameter: Codable) async throws -> AsyncThrowingStream<OAIChatCompletion.CreateResponse, Error> {
         let (stream, continuation) = AsyncThrowingStream<OAIChatCompletion.CreateResponse, Error>.makeStream()
         let data_stream = try await create(dataStream: parameter)
 
         Task {
             do {
-                let streamMerge = OAIChatCompletionStreamMerge()
+                let merge = OAIChatCompletionStreamMerge()
                 for try await data in data_stream {
-                    try await streamMerge.append(chunk: data)
-                    await continuation.yield(streamMerge.merge())
+                    for chunk in try await merge.parse(chunk: data) {
+                        switch chunk {
+                        case .chunk(let data):
+                            try await merge.append(JSONDecoder.decode(OAIChatCompletion.CreateChunkResponse.self, from: data))
+                        case .finish:
+                            break
+                        case .other(let data):
+                            break
+                        }
+                    }
+                    await continuation.yield(merge.merge())
                 }
                 continuation.finish()
             } catch {
@@ -79,6 +88,12 @@ public struct OAIChatCompletionAPIs {
         }
         
         return stream
+    }
+    
+    public func create(stream parameter: OAIChatCompletion.CreateParameter) async throws -> AsyncThrowingStream<OAIChatCompletion.CreateResponse, Error> {
+        var parameter = parameter
+        parameter.stream = true
+        return try await self.stream(parameter)
     }
     
 }

@@ -152,11 +152,14 @@ public extension OAIChatCompletion {
     
     struct UserMessage: Codable, Equatable {
         
-        public var role: Role = .user
+        public var role: Role
         public var name: String?
         public var content: [UserMessageContent]
         
-        public init(name: String? = nil, content: [UserMessageContent]) {
+        public init(role: Role = .user,
+                    name: String? = nil,
+                    content: [UserMessageContent]) {
+            self.role = role
             self.content = content
             self.name = name
         }
@@ -391,7 +394,7 @@ public extension OAIChatCompletion {
         }
         
     }
-    
+        
     struct CreateParameter: Codable {
         
         public var messages: [RequestMessage] = []
@@ -538,17 +541,50 @@ public extension OAIChatCompletion {
         }
     }
     
-    enum FinishReason: String, Codable {
-        case stop
-        case tool_calls
-        case content_filter
+    struct FinishReason: Codable, RawRepresentable, ExpressibleByStringLiteral, Equatable {
+        static let stop: FinishReason           = "stop"
+        static let tool_calls: FinishReason     = "tool_calls"
+        static let content_filter: FinishReason = "content_filter"
+        
+        public var rawValue: String
+        
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+        
+        public init(stringLiteral value: String) {
+            self.rawValue = value
+        }
+
+        public func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+           try container.encode(rawValue)
+        }
+        
+        public init(from decoder: any Decoder) throws {
+            var container = try decoder.singleValueContainer()
+            rawValue = try container.decode(RawValue.self)
+        }
+        
     }
     
     struct ChunkChoice: Codable {
+       
+        
         public var index: Int
         public var delta: ResponseChunkMessage
         public var logprobs: LogProbability
         public var finish_reason: FinishReason?
+        
+        public init(index: Int,
+                    delta: OAIChatCompletion.ResponseChunkMessage,
+                    logprobs: OAIChatCompletion.LogProbability,
+                    finish_reason: OAIChatCompletion.FinishReason? = nil) {
+            self.index = index
+            self.delta = delta
+            self.logprobs = logprobs
+            self.finish_reason = finish_reason
+        }
         
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -564,6 +600,7 @@ public extension OAIChatCompletion {
         public var message: ResponseMessage
         public var logprobs: LogProbability?
         public var finish_reason: FinishReason?
+        
         public init(index: Int,
                     message: ResponseMessage,
                     logprobs: LogProbability?,
