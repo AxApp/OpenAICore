@@ -8,6 +8,7 @@
 import Foundation
 
 public struct OAIEmbedding: Codable {
+    
     public enum Object: String, Codable {
         case embedding
     }

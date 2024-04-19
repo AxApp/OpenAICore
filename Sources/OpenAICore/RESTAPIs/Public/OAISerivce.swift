@@ -31,6 +31,8 @@ public struct OAISerivce: LLMSerivce, Codable, Equatable {
         if !organization.isEmpty {
             headerFields[.organization] = organization
         }
+        headerFields[.contentType] = "application/json"
+        headerFields[.authorization] = "Bearer \(token)"
         return headerFields
     }
     

@@ -33,7 +33,7 @@ public extension STJSONEncodable where Self: Codable {
 }
 
 public protocol OAIClientProtocol {
-
+    
     var encoder: JSONEncoder { get }
     var decoder: JSONDecoder { get }
     
@@ -107,8 +107,6 @@ public extension OAIClientProtocol {
             path = "/\(path)"
         }
         request.path = path
-        request.headerFields[.contentType] = "application/json"
-        request.headerFields[.authorization] = "Bearer \(serivce.token)"
         request.headerFields = serivce.edit(headerFields: request.headerFields)
         return request
     }

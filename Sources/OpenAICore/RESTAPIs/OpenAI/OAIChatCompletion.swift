@@ -542,9 +542,9 @@ public extension OAIChatCompletion {
     }
     
     struct FinishReason: Codable, RawRepresentable, ExpressibleByStringLiteral, Equatable {
-        static let stop: FinishReason           = "stop"
-        static let tool_calls: FinishReason     = "tool_calls"
-        static let content_filter: FinishReason = "content_filter"
+        public static let stop: FinishReason           = "stop"
+        public static let tool_calls: FinishReason     = "tool_calls"
+        public static let content_filter: FinishReason = "content_filter"
         
         public var rawValue: String
         

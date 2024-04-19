@@ -9,7 +9,6 @@ import Foundation
 import HTTPTypes
 
 public protocol LLMSerivce {
-    var token: String { get }
     var host: OAIHost { get }
     func edit(headerFields: HTTPFields) -> HTTPFields
 }

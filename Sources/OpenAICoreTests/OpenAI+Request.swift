@@ -27,10 +27,9 @@ public class OAIClient: OAIClientProtocol {
         return .init(data: response.0, response: response.1)
     }
     
-    public func stream(for request: HTTPRequest, from bodyData: Data) throws -> AsyncThrowingStream<OAIClientResponse, Error> {
-        return .init { continuation in
-            
-        }
+    public func serverSendEvent(for request: HTTPTypes.HTTPRequest, 
+                                from bodyData: Data,
+                                failure: (OpenAICore.OAIClientResponse) async throws -> Void) async throws -> AsyncThrowingStream<Data, any Error> {
+        .makeStream().stream
     }
-    
 }
