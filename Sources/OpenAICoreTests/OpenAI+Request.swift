@@ -11,25 +11,25 @@ import OpenAICore
 import HTTPTypes
 import HTTPTypesFoundation
 
-public class OAIClient: OAIClientProtocol {
+public class OAIClient: LLMClientProtocol {
     
     public static let shared = OAIClient()
     
     private var cancellables = Set<AnyCancellable>()
     
-    public func data(for request: HTTPRequest) async throws -> OAIClientResponse {
+    public func data(for request: HTTPRequest) async throws -> LLMResponse {
         let response = try await URLSession.shared.data(for: request)
         return .init(data: response.0, response: response.1)
     }
     
-    public func upload(for request: HTTPRequest, from bodyData: Data) async throws -> OAIClientResponse {
+    public func upload(for request: HTTPRequest, from bodyData: Data) async throws -> LLMResponse {
         let response = try await URLSession.shared.upload(for: request, from: bodyData)
         return .init(data: response.0, response: response.1)
     }
     
     public func serverSendEvent(for request: HTTPTypes.HTTPRequest, 
                                 from bodyData: Data,
-                                failure: (OpenAICore.OAIClientResponse) async throws -> Void) async throws -> AsyncThrowingStream<Data, any Error> {
+                                failure: (OpenAICore.LLMResponse) async throws -> Void) async throws -> AsyncThrowingStream<Data, any Error> {
         .makeStream().stream
     }
 }

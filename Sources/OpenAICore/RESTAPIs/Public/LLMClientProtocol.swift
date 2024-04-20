@@ -10,7 +10,7 @@ import HTTPTypes
 import HTTPTypesFoundation
 import STJSON
 
-public struct OAIClientResponse {
+public struct LLMResponse {
     public let data: Data
     public let response: HTTPResponse
     public init(data: Data, response: HTTPResponse) {
@@ -19,50 +19,23 @@ public struct OAIClientResponse {
     }
 }
 
-public protocol STJSONEncodable {
-    func encode() throws -> JSON
-}
-
-public extension STJSONEncodable where Self: Codable {
-
-    func encode() throws -> JSON {
-        let data = try JSONEncoder().encode(self)
-        return try JSON(data: data)
-    }
-    
-}
-
-public protocol OAIClientProtocol {
+public protocol LLMClientProtocol {
     
     var encoder: JSONEncoder { get }
     var decoder: JSONDecoder { get }
     
-    func data(for request: HTTPRequest) async throws -> OAIClientResponse
-    func upload(for request: HTTPRequest, from bodyData: Data) async throws -> OAIClientResponse
-    func serverSendEvent(for request: HTTPRequest, from bodyData: Data, failure: (_ response: OAIClientResponse) async throws -> Void) async throws -> AsyncThrowingStream<Data, Error>
+    func data(for request: HTTPRequest) async throws -> LLMResponse
+    func upload(for request: HTTPRequest, from bodyData: Data) async throws -> LLMResponse
+    func serverSendEvent(for request: HTTPRequest, from bodyData: Data, failure: (_ response: LLMResponse) async throws -> Void) async throws -> AsyncThrowingStream<Data, Error>
 }
 
-public extension OAIClientProtocol {
+public extension LLMClientProtocol {
 
     var encoder: JSONEncoder { .init() }
     var decoder: JSONDecoder { .init() }
     
     func encode<T: Encodable>(_ type: T) throws -> Data {
        try encoder.encode(type)
-    }
-    
-    func encode<T: STJSONEncodable>(_ type: T) throws -> Data {
-        var options: JSONSerialization.WritingOptions = []
-        if encoder.outputFormatting.contains(.sortedKeys) {
-            options.insert(.sortedKeys)
-        }
-        if encoder.outputFormatting.contains(.prettyPrinted) {
-            options.insert(.prettyPrinted)
-        }
-        if encoder.outputFormatting.contains(.withoutEscapingSlashes) {
-            options.insert(.withoutEscapingSlashes)
-        }
-        return try type.encode().rawData(options: options)
     }
     
     func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
@@ -73,17 +46,17 @@ public extension OAIClientProtocol {
        try decoder.decode(T.self, from: data)
     }
     
-    func decode<T: Decodable>(_ type: T.Type, from response: OAIClientResponse) throws -> T {
+    func decode<T: Decodable>(_ type: T.Type, from response: LLMResponse) throws -> T {
         try decoder.decode(type, from: response.data)
     }
     
-    func decode<T: Decodable>(_ response: OAIClientResponse) throws -> T {
+    func decode<T: Decodable>(_ response: LLMResponse) throws -> T {
         try decoder.decode(T.self, from: response.data)
     }
     
 }
 
-public extension OAIClientProtocol {
+public extension LLMClientProtocol {
 
     func add(queries: [String: String], to request: HTTPRequest) -> HTTPRequest {
         var request = request
@@ -101,7 +74,7 @@ public extension OAIClientProtocol {
     }
 
     func request(of serivce: LLMSerivce, path: String) -> HTTPRequest {
-        var request = HTTPRequest(method: .get, url: URL(string: serivce.host.rawValue) ?? URL(string: OAIHost.openAI.rawValue)!)
+        var request = HTTPRequest(method: .get, url: URL(string: serivce.host.rawValue) ?? URL(string: LLMHost.openAI.rawValue)!)
         var path = path
         if !path.hasPrefix("/") {
             path = "/\(path)"

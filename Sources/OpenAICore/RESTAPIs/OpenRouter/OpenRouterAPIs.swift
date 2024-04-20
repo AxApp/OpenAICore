@@ -2,12 +2,13 @@
 //  File.swift
 //  
 //
-//  Created by linhey on 2024/4/19.
+//  Created by linhey on 2024/4/20.
 //
 
 import Foundation
 
-public struct OllamaAPIs: OllamaAPICollection {
+public struct OpenRouterAPIs: OpenRouterAPICollection {
+    
     public var client: LLMClientProtocol
     public var serivce: any LLMSerivce
     public init(client: LLMClientProtocol, serivce: any LLMSerivce) {

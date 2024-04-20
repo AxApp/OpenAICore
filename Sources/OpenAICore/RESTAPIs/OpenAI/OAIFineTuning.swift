@@ -80,7 +80,7 @@ struct OAIPager {
     let after: String? = nil
     let limit: Int? = nil
     
-    func apply(client: OAIClientProtocol, request: HTTPRequest) -> HTTPRequest {
+    func apply(client: LLMClientProtocol, request: HTTPRequest) -> HTTPRequest {
         var request = request
         if let after = after {
             request = client.add(queries: ["after": after], to: request)
@@ -94,10 +94,10 @@ struct OAIPager {
 
 struct OAIFineTuningAPIs {
     
-    public let client: OAIClientProtocol
+    public let client: LLMClientProtocol
     public let serivce: OAISerivce
     
-    public init(client: OAIClientProtocol, serivce: OAISerivce) {
+    public init(client: LLMClientProtocol, serivce: OAISerivce) {
         self.client = client
         self.serivce = serivce
     }

@@ -12,8 +12,6 @@ let package = Package(
     
     dependencies: [
         .package(url: "https://github.com/apple/swift-http-types.git", .upToNextMajor(from: "1.0.0")),
-        .package(url: "https://github.com/linhay/STJSON", .upToNextMajor(from: "1.1.3")),
-//        .package(path: "/Users/linhey/Desktop/STJSON"),
         .package(url: "https://github.com/apple/swift-crypto.git", .upToNextMajor(from: "3.3.0")),
         .package(url: "https://github.com/linhay/Tiktoken", .upToNextMajor(from: "0.0.5")),
         .package(url: "https://github.com/Flight-School/AnyCodable", .upToNextMajor(from: "0.6.7")),
@@ -22,7 +20,7 @@ let package = Package(
     targets: [
         .target(name: "OpenAICore",
                 dependencies: [
-                    "STJSON",
+//                    "STJSON",
                     "AnyCodable",
                     .product(name: "Crypto", package: "swift-crypto"),
                     .product(name: "HTTPTypesFoundation", package: "swift-http-types"),
@@ -30,7 +28,6 @@ let package = Package(
                     .product(name: "Tiktoken", package: "Tiktoken")
                 ]),
         .testTarget(name: "OpenAICoreTests", dependencies: [
-            "STJSON",
             .target(name: "OpenAICore")
         ])
     ]

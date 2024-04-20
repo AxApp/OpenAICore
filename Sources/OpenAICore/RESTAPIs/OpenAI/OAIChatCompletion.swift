@@ -57,7 +57,7 @@ public extension OAIChatCompletion {
     }
     
     struct ResponseFormat: Codable {
-       public let type: ResponseFormatType
+        public let type: ResponseFormatType
         public init(type: ResponseFormatType) {
             self.type = type
         }
@@ -100,7 +100,7 @@ public extension OAIChatCompletion {
             self.text = value
         }
     }
-
+    
     struct UserMessageImageURLContent: Codable, ExpressibleByStringLiteral, Equatable {
         
         public struct WrapperURL: Codable, Equatable {
@@ -224,7 +224,7 @@ public extension OAIChatCompletion {
             }
             
         }
-
+        
         public static func system(_ content: String) -> Self {
             .system(.init(content: content))
         }
@@ -311,7 +311,7 @@ public extension OAIChatCompletion {
             }
         }
     }
-
+    
     struct RequestFunctionTool: Codable, Equatable {
         public var type: RequestToolType = .function
         public var function: RequestFunctionToolItem
@@ -394,8 +394,8 @@ public extension OAIChatCompletion {
         }
         
     }
-        
-    struct CreateParameter: Codable {
+    
+    struct Parameters: Codable {
         
         public var messages: [RequestMessage] = []
         public var model: LLMModel = .gpt35_turbo
@@ -555,10 +555,10 @@ public extension OAIChatCompletion {
         public init(stringLiteral value: String) {
             self.rawValue = value
         }
-
+        
         public func encode(to encoder: any Encoder) throws {
             var container = encoder.singleValueContainer()
-           try container.encode(rawValue)
+            try container.encode(rawValue)
         }
         
         public init(from decoder: any Decoder) throws {
@@ -569,7 +569,7 @@ public extension OAIChatCompletion {
     }
     
     struct ChunkChoice: Codable {
-       
+        
         
         public var index: Int
         public var delta: ResponseChunkMessage
@@ -629,7 +629,7 @@ public extension OAIChatCompletion {
         var content: [LogProbabilityContent]
     }
     
-    struct CreateChunkResponse: Codable {
+    struct StreamResponse: Codable {
         public var id: String
         public var object: Object
         public var system_fingerprint: String?
@@ -639,7 +639,7 @@ public extension OAIChatCompletion {
         public var usage: OAIUsage?
     }
     
-    struct CreateResponse: Codable {
+    struct Response: Codable {
         
         public var id: String
         public var object: Object

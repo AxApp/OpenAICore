@@ -13,7 +13,7 @@ import XCTest
 final class OllamaTests: XCTestCase {
     
     class Serivce: LLMSerivce {
-        var host: OAIHost = .init("http://localhost:11434")
+        var host: LLMHost = .init("http://localhost:11434")
     }
     
     let apis = OllamaAPIs(client: OAIClient.shared, serivce: Serivce())

@@ -19,10 +19,10 @@ public struct OAIModel: Codable, Identifiable {
 
 public struct OAIModelAPIs {
     
-    public let client: OAIClientProtocol
+    public let client: LLMClientProtocol
     public let serivce: OAISerivce
     
-    public init(client: OAIClientProtocol, serivce: OAISerivce) {
+    public init(client: LLMClientProtocol, serivce: OAISerivce) {
         self.client = client
         self.serivce = serivce
     }

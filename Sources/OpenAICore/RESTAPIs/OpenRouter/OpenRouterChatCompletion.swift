@@ -20,7 +20,7 @@ public struct OpenRouterChatCompletion {
     }
 
     // MARK: - Main Request Structure
-    public struct CreateParameter: Codable {
+    public struct Parameters: Codable {
         public var messages: [OAIChatCompletion.UserMessage]?
         public var prompt: String?
         public var model: LLMModel?

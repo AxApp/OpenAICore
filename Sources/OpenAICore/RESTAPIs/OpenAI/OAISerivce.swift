@@ -16,14 +16,14 @@ public struct OAISerivce: LLMSerivce, Codable, Equatable {
     
     public var token: String
     public var organization: String
-    public var host: OAIHost
+    public var host: LLMHost
     
     public init(token: String,
                 organization: String = "",
-                host: OAIHost? = nil) {
+                host: LLMHost = .openAI) {
         self.token = token
         self.organization = organization
-        self.host = host ?? .openAI
+        self.host = host
     }
     
     public func edit(headerFields: HTTPFields) -> HTTPFields {
@@ -35,6 +35,4 @@ public struct OAISerivce: LLMSerivce, Codable, Equatable {
         headerFields[.authorization] = "Bearer \(token)"
         return headerFields
     }
-    
-    public static let none = OAISerivce(token: "")
 }

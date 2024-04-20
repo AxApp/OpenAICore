@@ -8,11 +8,7 @@
 import Foundation
 import HTTPTypes
 
-public protocol OllamaAPICollection {
-    var client: OAIClientProtocol { get }
-    var serivce: LLMSerivce { get }
-}
-
+public protocol OllamaAPICollection: LLMAPICollection {}
 
 /// https://github.com/ollama/ollama/blob/main/docs/api.md#model-names
 public extension OllamaAPICollection {
@@ -101,115 +97,46 @@ public extension OllamaAPICollection {
         return try await upload("api/chat", parameters, method: .post)
     }
     
-    func chat(stream parameters: OllamaChat.Parameters) async throws -> AsyncThrowingStream<OllamaChat.Response, Error> {
+    func chat(streamChunk parameters: OllamaChat.Parameters) async throws -> AsyncThrowingStream<OllamaChat.StreamResponse, Error> {
         var parameters = parameters
         parameters.stream = true
         var request = client.request(of: serivce, path: "api/chat")
         request.method = .post
         let request_body = try client.encode(parameters)
-        let (stream, continuation) = AsyncThrowingStream<OllamaChat.Response, Error>.makeStream()
-        let data_stream = try await client.serverSendEvent(for: request, from: request_body) { response in
+        let stream = try await client.serverSendEvent(for: request, from: request_body) { response in
             try validate(response)
         }
         
-        Task {
-            do {
-                var response = OllamaChat.Response.init(model: "",
-                                                     created_at: "",
-                                                     message: .init(role: .assistant, content: ""),
-                                                     done: false,
-                                                     total_duration: 0,
-                                                     load_duration: 0,
-                                                     prompt_eval_count: 0,
-                                                     prompt_eval_duration: 0,
-                                                     eval_count: 0,
-                                                     eval_duration: 0)
-                
-                for try await data in data_stream {
-                    for line in String(data: data, encoding: .utf8)?
-                        .split(separator: "\n", omittingEmptySubsequences: true)
-                        .map(\.description) ?? [] {
-                        if let stream = try? JSONDecoder.decode(OllamaChat.StreamResponse.self, from: line) {
-                            response.merge(stream: stream)
-                            continuation.yield(response)
-                        }
+        return transform(stream: stream) { element in
+            String(data: element, encoding: .utf8)?
+                .split(separator: "\n", omittingEmptySubsequences: true)
+                .map(\.description)
+                .compactMap({ line in
+                    if let response = try? JSONDecoder.decode(OllamaChat.StreamResponse.self, from: line) {
+                        return response
+                    } else {
+                        return nil
                     }
-                }
-                continuation.finish()
-            } catch {
-                continuation.finish(throwing: error)
-            }
-        }
-        return stream
-    }
-    
-}
-
-extension OllamaAPICollection {
-    
-    func validate<Response: Decodable>(_ response: OAIClientResponse) throws -> Response {
-        if response.response.status.kind != .successful {
-            if let error = try? JSONDecoder.decode(OllamaError.self, from: response.data) {
-                throw error
-            } else {
-                throw OllamaError(error: String.init(data: response.data, encoding: .utf8) ?? "")
-            }
-        }
-        return try JSONDecoder.decode(Response.self, from: response.data)
-    }
-    
-    func validate(_ response: OAIClientResponse) throws -> Void {
-        if response.response.status.kind != .successful {
-            if let error = try? JSONDecoder.decode(OllamaError.self, from: response.data) {
-                throw error
-            } else {
-                throw OllamaError(error: String.init(data: response.data, encoding: .utf8) ?? "")
-            }
+                }) ?? []
         }
     }
     
-    func data(_ path: String,
-              method: HTTPRequest.Method,
-              beforeRequest: ((inout HTTPRequest) -> Void)? = nil) async throws {
-        var request = client.request(of: serivce, path: path)
-        request.method = method
-        beforeRequest?(&request)
-        let response = try await client.data(for: request)
-        return try validate(response)
-    }
-    
-    func data<Response: Decodable>(_ path: String,
-                                   method: HTTPRequest.Method,
-                                   beforeRequest: ((inout HTTPRequest) -> Void)? = nil) async throws -> Response {
-        var request = client.request(of: serivce, path: path)
-        request.method = method
-        beforeRequest?(&request)
-        let response = try await client.data(for: request)
-        return try validate(response)
-    }
-    
-    func upload<Parameters: Encodable, Response: Decodable>(_ path: String,
-                                                            _ parameters: Parameters,
-                                                            method: HTTPRequest.Method,
-                                                            beforeRequest: ((inout HTTPRequest) -> Void)? = nil) async throws -> Response {
-        var request = client.request(of: serivce, path: path)
-        request.method = method
-        let request_body = try client.encode(parameters)
-        beforeRequest?(&request)
-        let response = try await client.upload(for: request, from: request_body)
-        return try validate(response)
-    }
-    
-    func upload<Parameters: Encodable>(_ path: String,
-                                       _ parameters: Parameters,
-                                       method: HTTPRequest.Method,
-                                       beforeRequest: ((inout HTTPRequest) -> Void)? = nil) async throws -> Void {
-        var request = client.request(of: serivce, path: path)
-        request.method = method
-        let request_body = try client.encode(parameters)
-        beforeRequest?(&request)
-        let response = try await client.upload(for: request, from: request_body)
-        return try validate(response)
+    func chat(stream parameters: OllamaChat.Parameters) async throws -> AsyncThrowingStream<OllamaChat.Response, Error> {
+        var response = OllamaChat.Response.init(model: "",
+                                                created_at: "",
+                                                message: .init(role: .assistant, content: ""),
+                                                done: false,
+                                                total_duration: 0,
+                                                load_duration: 0,
+                                                prompt_eval_count: 0,
+                                                prompt_eval_duration: 0,
+                                                eval_count: 0,
+                                                eval_duration: 0)
+        
+        return transform(stream: try await chat(streamChunk: parameters)) { element in
+            response.merge(stream: element)
+            return [response]
+        }
     }
     
 }

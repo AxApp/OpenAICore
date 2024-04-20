@@ -1,13 +1,13 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by linhey on 2024/4/6.
 //
 
 import Foundation
 
-public actor OAIChatCompletionStreamMerge {
+public struct OAIChatCompletionStreamMerge {
     
     public enum Kind {
         case chunk(Data)
@@ -15,10 +15,10 @@ public actor OAIChatCompletionStreamMerge {
         case other(Data)
     }
     
-    public var chunks = [OAIChatCompletion.CreateChunkResponse]()
+    public var chunks = [OAIChatCompletion.StreamResponse]()
     
     public init() { }
-
+    
     public func parse(chunk data: Data) throws -> [Kind] {
         guard let eventString = String(data: data, encoding: .utf8) else { return [.other(data)] }
         var kinds = [Kind]()
@@ -41,21 +41,21 @@ public actor OAIChatCompletionStreamMerge {
         return kinds
     }
     
-    public func append(_ item: OAIChatCompletion.CreateChunkResponse) {
+    public mutating func append(_ item: OAIChatCompletion.StreamResponse) {
         self.chunks.append(item)
     }
     
-    public func merge() -> OAIChatCompletion.CreateResponse {
+    public func merge() -> OAIChatCompletion.Response {
         guard let first = chunks.first, let last = chunks.last else {
             return .init()
         }
         
-        var response = OAIChatCompletion.CreateResponse(id: last.id,
-                                                        object: last.object,
-                                                        created: first.created,
-                                                        model: last.model,
-                                                        system_fingerprint: first.system_fingerprint,
-                                                        usage: last.usage ?? .init(completion_tokens: chunks.count))
+        var response = OAIChatCompletion.Response(id: last.id,
+                                                  object: last.object,
+                                                  created: first.created,
+                                                  model: last.model,
+                                                  system_fingerprint: first.system_fingerprint,
+                                                  usage: last.usage ?? .init(completion_tokens: chunks.count))
         var raw_store = [Int: OAIChatCompletion.ChunkChoice]()
         chunks.map(\.choices).joined().forEach { choice in
             if var raw = raw_store[choice.index] {

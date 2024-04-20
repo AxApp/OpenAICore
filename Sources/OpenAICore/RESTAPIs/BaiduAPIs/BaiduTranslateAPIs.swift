@@ -9,10 +9,10 @@ import Foundation
 
 public struct BaiduTranslateAPIs {
     
-    public let client: OAIClientProtocol
+    public let client: LLMClientProtocol
     public let serivce: BaiduTranslateService
     
-    public init(client: OAIClientProtocol, serivce: BaiduTranslateService) {
+    public init(client: LLMClientProtocol, serivce: BaiduTranslateService) {
         self.client = client
         self.serivce = serivce
     }
