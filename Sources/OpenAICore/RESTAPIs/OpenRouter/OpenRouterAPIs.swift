@@ -9,9 +9,9 @@ import Foundation
 
 public struct OpenRouterAPIs: OpenRouterAPICollection {
     
-    public var client: LLMClientProtocol
+    public var client: any LLMClientProtocol
     public var serivce: any LLMSerivce
-    public init(client: LLMClientProtocol, serivce: any LLMSerivce) {
+    public init(client: any LLMClientProtocol, serivce: any LLMSerivce) {
         self.client = client
         self.serivce = serivce
     }

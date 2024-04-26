@@ -51,7 +51,7 @@ public extension LLMAPICollection {
     
 }
 
-extension LLMAPICollection {
+public extension LLMAPICollection {
     
     func validate<Response: Decodable>(_ response: LLMResponse) throws -> Response {
         if response.response.status.kind != .successful {

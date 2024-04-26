@@ -11,16 +11,17 @@ let package = Package(
     ],
     
     dependencies: [
-        .package(url: "https://github.com/apple/swift-http-types.git", .upToNextMajor(from: "1.0.0")),
-        .package(url: "https://github.com/apple/swift-crypto.git", .upToNextMajor(from: "3.3.0")),
-        .package(url: "https://github.com/linhay/Tiktoken", .upToNextMajor(from: "0.0.5")),
-        .package(url: "https://github.com/Flight-School/AnyCodable", .upToNextMajor(from: "0.6.7")),
+        .package(url: "https://github.com/apple/swift-http-types.git", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "3.3.0"),
+        .package(url: "https://github.com/linhay/STJSON", from: "1.1.3"),
+        .package(url: "https://github.com/linhay/Tiktoken", from: "0.0.5"),
+        .package(url: "https://github.com/Flight-School/AnyCodable", from: "0.6.7"),
 //         .package(path: "../Tiktoken"),
     ],
     targets: [
         .target(name: "OpenAICore",
                 dependencies: [
-//                    "STJSON",
+                    "STJSON",
                     "AnyCodable",
                     .product(name: "Crypto", package: "swift-crypto"),
                     .product(name: "HTTPTypesFoundation", package: "swift-http-types"),

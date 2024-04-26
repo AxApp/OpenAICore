@@ -19,8 +19,8 @@ public struct OllamaEmbeddings {
     }
     
     public struct Response: Codable {
-        public let embedding: [Double]
-        public init(embedding: [Double]) {
+        public let embedding: [Float32]
+        public init(embedding: [Float32]) {
             self.embedding = embedding
         }
     }

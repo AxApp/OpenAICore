@@ -5,11 +5,97 @@
 //  Created by linhey on 2024/4/19.
 //
 
+
 import Foundation
+
+public enum OllamaModel: String {
+    case phi3
+    case llama3
+    case wizardlm2
+    case mistral
+    case gemma
+    case mixtral
+    case llama2
+    case codegemma
+    case command_r = "command-r"
+    case command_r_plus = "command-r-plus"
+    case llava
+    case dbrx
+    case codellama
+//    case dolphin-mixtral
+    case qwen
+//    case llama2-uncensored
+//    case mistral-openorca
+//    case deepseek-coder
+    case phi
+//    case nous-hermes2
+//    case dolphin-mistral
+//    case orca-mini
+//    case nomic-embed-text
+//    case llama2-chinese
+    case zephyr
+//    case wizard-vicuna-uncensored
+    case openhermes
+    case vicuna
+    case tinydolphin
+    case tinyllama
+    case openchat
+    case starcoder2
+    case wizardcoder
+//    case stable-code
+    case starcoder
+//    case neural-chat
+//    case phind-codellama
+    case yi
+//    case starling-lm
+//    case dolphin-phi
+    case falcon
+    case orca2
+//    case wizard-math
+    case dolphincoder
+//    case nous-hermes
+    case bakllava
+    case medllama2
+    case solar
+//    case nous-hermes2-mixtral
+    case sqlcoder
+//    case wizardlm-uncensored
+//    case mxbai-embed-large
+    case codeup
+    case everythinglm
+    case stablelm2
+//    case all-minilm
+//    case yarn-mistral
+//    case samantha-mistral
+    case meditron
+//    case stable-beluga
+    case magicoder
+//    case stablelm-zephyr
+//    case yarn-llama2
+//    case llama-pro
+//    case deepseek-llm
+    case codebooga
+//    case dolphin-llama3
+    case mistrallite
+//    case wizard-vicuna
+    case nexusraven
+    case codeqwen
+    case goliath
+//    case open-orca-platypus2
+    case notux
+    case megadolphin
+    case alfred
+//    case duckdb-nsql
+    case xwinlm
+    case wizardlm
+    case notus
+    case snowflake_arctic_embed = "snowflake-arctic-embed"
+}
 
 public struct OllamaGenerate {
     
     public struct Parameters: Codable {
+        
         public var model: String
         public var prompt: String
         public var images: [String]?
@@ -22,7 +108,7 @@ public struct OllamaGenerate {
         public var raw: Bool?
         public var keep_alive: String?
         
-        public init(model: String, 
+        public init(model: String,
                     prompt: String,
                     images: [String]? = nil,
                     format: OllamaResponseFormat? = nil,
@@ -101,12 +187,12 @@ public struct OllamaGenerate {
         public var response: String
         public var done: Bool
         public var context: [Int]?
-        public var total_duration: Int64
-        public var load_duration: Int64
-        public var prompt_eval_count: Int
-        public var prompt_eval_duration: Int64
-        public var eval_count: Int
-        public var eval_duration: Int64
+        public var total_duration: Int64?
+        public var load_duration: Int64?
+        public var prompt_eval_count: Int?
+        public var prompt_eval_duration: Int64?
+        public var eval_count: Int?
+        public var eval_duration: Int64?
         
         init(model: String, created_at: String, response: String, done: Bool, context: [Int]? = nil, total_duration: Int64, load_duration: Int64, prompt_eval_count: Int, prompt_eval_duration: Int64, eval_count: Int, eval_duration: Int64) {
             self.model = model
