@@ -10,6 +10,10 @@ import HTTPTypes
 import HTTPTypesFoundation
 import STJSON
 
+public extension HTTPField.Name {
+    static var userinfo = HTTPField.Name.init("userinfo")!
+}
+
 public struct LLMResponse {
     public let data: Data
     public let response: HTTPResponse
@@ -74,12 +78,13 @@ public extension LLMClientProtocol {
     }
 
     func request(of serivce: LLMSerivce, path: String) -> HTTPRequest {
-        var request = HTTPRequest(method: .get, url: URL(string: serivce.host.rawValue) ?? URL(string: LLMHost.openAI.rawValue)!)
+        var request = HTTPRequest(url: .init(string: serivce.host.rawValue)!)
+        request.url
         var path = path
         if !path.hasPrefix("/") {
             path = "/\(path)"
         }
-        request.path = path
+        request.path = path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
         request.headerFields = serivce.edit(headerFields: request.headerFields)
         return request
     }

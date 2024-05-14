@@ -74,24 +74,29 @@ public extension LLMModelOrganization {
 public extension LLMModelToken {
     static let x4k: LLMModelToken   = 4096
     static let x8k: LLMModelToken   = 8192
+    static let x16k: LLMModelToken  = 16385
     static let x32k: LLMModelToken  = 32768
+    static let x128k: LLMModelToken = 128000
 }
 
 // GPT4
 public extension LLMModel {
     
     static let GPT4s: [LLMModel] = [
+        .gpt4o,
         .gpt4_turbo_preview,
         .gpt4_vision_preview,
         .gpt4,
         .gpt4_32k
     ]
     
-    static let gpt4_0125_preview        = LLMModel(token: 128000, organization: .openai, name: "gpt-4-0125-preview")
-    static let gpt4_turbo_preview       = LLMModel(token: 128000, organization: .openai, name: "gpt-4-turbo-preview")
-    static let gpt4_1106_preview        = LLMModel(token: 128000, organization: .openai, name: "gpt-4-1106-preview")
-    static let gpt4_vision_preview      = LLMModel(token: 128000, organization: .openai, name: "gpt-4-vision-preview")
-    static let gpt4_1106_vision_preview = LLMModel(token: 128000, organization: .openai, name: "gpt-4-1106-vision-preview")
+    static let gpt4o = LLMModel(token: 128000, organization: .openai, name: "gpt-4o")
+
+    static let gpt4_0125_preview        = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-0125-preview")
+    static let gpt4_turbo_preview       = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-turbo-preview")
+    static let gpt4_1106_preview        = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-1106-preview")
+    static let gpt4_vision_preview      = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-vision-preview")
+    static let gpt4_1106_vision_preview = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-1106-vision-preview")
     static let gpt4                     = LLMModel(token: .x8k,   organization: .openai, name: "gpt-4")
     static let gpt4_0613                = LLMModel(token: .x8k,   organization: .openai, name: "gpt-4-0613")
     static let gpt4_32k                 = LLMModel(token: .x8k,   organization: .openai, name: "gpt-4-32k")
@@ -103,9 +108,9 @@ public extension LLMModel {
 public extension LLMModel {
     
     static let GPT35s: [LLMModel] = [.gpt35_turbo]
-    static let gpt35_turbo          = LLMModel(token: 16385, organization: .openai, name: "gpt-3.5-turbo")
-    static let gpt35_turbo_0125     = LLMModel(token: 16385, organization: .openai, name: "gpt-3.5-turbo-0125")
-    static let gpt35_turbo_1106     = LLMModel(token: 16385, organization: .openai, name: "gpt-3.5-turbo-1106")
+    static let gpt35_turbo          = LLMModel(token: .x16k, organization: .openai, name: "gpt-3.5-turbo")
+    static let gpt35_turbo_0125     = LLMModel(token: .x16k, organization: .openai, name: "gpt-3.5-turbo-0125")
+    static let gpt35_turbo_1106     = LLMModel(token: .x16k, organization: .openai, name: "gpt-3.5-turbo-1106")
     static let gpt35_turbo_instruct = LLMModel(token: .x4k,  organization: .openai, name: "gpt-3.5-turbo-instruct")
     
 }
@@ -115,8 +120,8 @@ public extension LLMModel {
     
     static let moonshots: [LLMModel] = [.moonshot_v1_8k, .moonshot_v1_32k, .moonshot_v1_128k]
     static let moonshot_v1_8k   = LLMModel(token: .x8k,   organization: .moonshot, name: "moonshot-v1-8k")
-    static let moonshot_v1_32k  = LLMModel(token: 32770,  organization: .moonshot, name: "moonshot-v1-32k")
-    static let moonshot_v1_128k = LLMModel(token: 128000, organization: .moonshot, name: "moonshot-v1-128k")
+    static let moonshot_v1_32k  = LLMModel(token: .x32k,  organization: .moonshot, name: "moonshot-v1-32k")
+    static let moonshot_v1_128k = LLMModel(token: .x128k, organization: .moonshot, name: "moonshot-v1-128k")
     
 }
 
@@ -127,9 +132,9 @@ public extension LLMModel {
     
     static let qwens: [LLMModel] = [.qwen_turbo, .qwen_plus, .qwen_max]
     static let qwenVLs: [LLMModel] = [.qwen_vl_max, .qwen_vl_plus]
-    static let qwen_turbo   = LLMModel(token: 8192,   organization: .dashscope, name: "qwen-turbo")
-    static let qwen_plus    = LLMModel(token: 32770,  organization: .dashscope, name: "qwen-plus")
-    static let qwen_max     = LLMModel(token: 8192,   organization: .dashscope, name: "qwen-max")
-    static let qwen_vl_plus = LLMModel(token: 32770,  organization: .dashscope, name: "qwen-vl-plus")
-    static let qwen_vl_max  = LLMModel(token: 8192,   organization: .dashscope, name: "qwen-vl-max")
+    static let qwen_turbo   = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-turbo")
+    static let qwen_plus    = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-plus")
+    static let qwen_max     = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-max")
+    static let qwen_vl_plus = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-vl-plus")
+    static let qwen_vl_max  = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-vl-max")
 }
