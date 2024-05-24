@@ -562,7 +562,7 @@ public extension OAIChatCompletion {
         }
         
         public init(from decoder: any Decoder) throws {
-            var container = try decoder.singleValueContainer()
+            let container = try decoder.singleValueContainer()
             rawValue = try container.decode(RawValue.self)
         }
         

@@ -7,8 +7,6 @@
 
 import Foundation
 import STJSON
-import Alamofire
-
 
 /// openai: https://platform.openai.com/docs/api-reference/files
 /// moonshot: https://platform.moonshot.cn/docs/api/partial#partial-mode
