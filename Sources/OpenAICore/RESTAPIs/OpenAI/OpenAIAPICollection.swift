@@ -13,7 +13,7 @@ public protocol OpenAIAPICollection: LLMAPICollection {
 }
 
 public extension OpenAIAPICollection {
-    
+        
     func embeddings(_ parameters: OllamaEmbeddings.Parameters) async throws -> OllamaEmbeddings.Response {
         return try await upload("v1/embeddings", parameters, method: .post)
     }

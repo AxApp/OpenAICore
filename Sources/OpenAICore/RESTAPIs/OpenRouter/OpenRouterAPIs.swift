@@ -11,6 +11,7 @@ public struct OpenRouterAPIs: OpenRouterAPICollection {
     
     public var client: any LLMClientProtocol
     public var serivce: any LLMSerivce
+    
     public init(client: any LLMClientProtocol, serivce: any LLMSerivce) {
         self.client = client
         self.serivce = serivce

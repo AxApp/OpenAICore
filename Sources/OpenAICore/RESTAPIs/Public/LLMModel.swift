@@ -130,11 +130,17 @@ public extension LLMModel {
 // https://help.aliyun.com/zh/dashscope/developer-reference/model-introduction?spm=a2c4g.11186623.0.0.1093140b93noQ5
 public extension LLMModel {
     
-    static let qwens: [LLMModel] = [.qwen_turbo, .qwen_plus, .qwen_max]
+    static let qwens: [LLMModel] = [.qwen_turbo, .qwen_plus, .qwen_max, .qwen_max_longcontext, .qwen_long]
     static let qwenVLs: [LLMModel] = [.qwen_vl_max, .qwen_vl_plus]
-    static let qwen_turbo   = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-turbo")
-    static let qwen_plus    = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-plus")
-    static let qwen_max     = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-max")
+    
+    /// https://help.aliyun.com/zh/dashscope/developer-reference/api-details?spm=a2c4g.11186623.0.0.3edee0f6lSCW6E
+    static let qwen_turbo = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-turbo")
+    static let qwen_plus  = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-plus")
+    static let qwen_max   = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-max")
+    static let qwen_max_longcontext = LLMModel(token: .x8k, organization: .dashscope, name: "qwen-max-longcontext")
+    static let qwen_long = LLMModel(token: 10_000_000, organization: .dashscope, name: "qwen-long")
+
+
     static let qwen_vl_plus = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-vl-plus")
     static let qwen_vl_max  = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-vl-max")
 }

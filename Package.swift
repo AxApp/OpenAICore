@@ -1,7 +1,8 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
+import CompilerPluginSupport
 
 let package = Package(
     name: "OpenAICore",
@@ -11,7 +12,9 @@ let package = Package(
     ],
     
     dependencies: [
-        .package(url: "https://github.com/apple/swift-http-types.git", from: "1.0.0"),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.9.1")),
+        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.1.1"),
+        .package(url: "https://github.com/apple/swift-http-types.git", from: "1.1.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.3.0"),
         .package(url: "https://github.com/linhay/STJSON", from: "1.1.3"),
         .package(url: "https://github.com/linhay/Tiktoken", from: "0.0.5"),
@@ -19,8 +22,16 @@ let package = Package(
 //         .package(path: "../Tiktoken"),
     ],
     targets: [
+        .macro(
+            name: "OpenAICoreMacros",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+            ]
+        ),
         .target(name: "OpenAICore",
                 dependencies: [
+                    "OpenAICoreMacros",
                     "STJSON",
                     "AnyCodable",
                     .product(name: "Crypto", package: "swift-crypto"),
@@ -29,7 +40,9 @@ let package = Package(
                     .product(name: "Tiktoken", package: "Tiktoken")
                 ]),
         .testTarget(name: "OpenAICoreTests", dependencies: [
-            .target(name: "OpenAICore")
+            "Alamofire",
+            .target(name: "OpenAICore"),
+            .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
         ])
     ]
 )

@@ -9,6 +9,7 @@ import Foundation
 import HTTPTypes
 import HTTPTypesFoundation
 import STJSON
+import AnyCodable
 
 public extension HTTPField.Name {
     static var userinfo = HTTPField.Name.init("userinfo")!
@@ -23,12 +24,28 @@ public struct LLMResponse {
     }
 }
 
+public struct UploadFileFormData {
+    
+    public let fileURL: URL
+    public let name: String
+    public let fileName: String?
+    public let mimeType: String?
+    
+    public init(fileURL: URL, name: String, fileName: String? = nil, mimeType: String? = nil) {
+        self.fileURL = fileURL
+        self.name = name
+        self.fileName = fileName
+        self.mimeType = mimeType
+    }
+}
+
 public protocol LLMClientProtocol {
     
     var encoder: JSONEncoder { get }
     var decoder: JSONDecoder { get }
     
     func data(for request: HTTPRequest) async throws -> LLMResponse
+    func upload(for request: HTTPRequest, from file: UploadFileFormData) async throws -> LLMResponse
     func upload(for request: HTTPRequest, from bodyData: Data) async throws -> LLMResponse
     func serverSendEvent(for request: HTTPRequest, from bodyData: Data, failure: (_ response: LLMResponse) async throws -> Void) async throws -> AsyncThrowingStream<Data, Error>
 }
@@ -38,7 +55,7 @@ public extension LLMClientProtocol {
     var encoder: JSONEncoder { .init() }
     var decoder: JSONDecoder { .init() }
     
-    func encode<T: Encodable>(_ type: T) throws -> Data {
+    func encode(_ type: Encodable) throws -> Data {
        try encoder.encode(type)
     }
     

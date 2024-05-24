@@ -61,13 +61,13 @@ struct OAIFineTuning: Codable, Identifiable {
     let hyperparameters: Hyperparameters?
     
     /// 用于训练的文件ID。可以使用Files API检索训练数据。
-    let training_file: OAIFile.ID
+    let training_file: OAIFile.Response.ID
     
     /// 用于验证的文件ID。可以使用Files API检索验证结果。如果为null，表示没有验证文件。
-    let validation_file: OAIFile.ID?
+    let validation_file: OAIFile.Response.ID?
     
     /// Fine-tuning job的编译结果文件ID。可以使用Files API检索结果。
-    let result_files: [OAIFile.ID]
+    let result_files: [OAIFile.Response.ID]
     
     /// 由该Fine-tuning job处理的总计费令牌数。如果Fine-tuning job仍在运行，该值将为null。
     let trained_tokens: Int?
@@ -103,8 +103,8 @@ struct OAIFineTuningAPIs {
     }
     
     struct CreateRequest: Codable {
-        let training_file: OAIFile.ID
-        let validation_file: OAIFile.ID?
+        let training_file: OAIFile.Response.ID
+        let validation_file: OAIFile.Response.ID?
         let model: OAIFineTuning.Model
         let hyperparameters: OAIFineTuning.Hyperparameters?
         let suffix: String?

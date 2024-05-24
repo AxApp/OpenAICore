@@ -27,7 +27,7 @@ final class DecoderTests: XCTestCase {
             ]
           }
         """
-        let object = try JSONDecoder.decode(OAIChatCompletion.CreateParameter.self, from: json)
+        let object = try JSONDecoder.decode(OAIChatCompletion.Parameters.self, from: json)
         XCTAssert(object.model == .gpt35_turbo)
         XCTAssert(object.messages.count == 2)
         XCTAssert(object.messages[0].role == .system)
@@ -60,7 +60,7 @@ final class DecoderTests: XCTestCase {
             "max_tokens": 300
           }
         """
-        let object = try JSONDecoder.decode(OAIChatCompletion.CreateParameter.self, from: json)
+        let object = try JSONDecoder.decode(OAIChatCompletion.Parameters.self, from: json)
         XCTAssert(object.model == .gpt4_vision_preview)
         XCTAssert(object.messages.count == 1)
         XCTAssert(object.messages[0].role == .user)
@@ -106,7 +106,7 @@ final class DecoderTests: XCTestCase {
           "tool_choice": "auto"
         }
         """
-        let object = try JSONDecoder.decode(OAIChatCompletion.CreateParameter.self, from: json)
+        let object = try JSONDecoder.decode(OAIChatCompletion.Parameters.self, from: json)
         XCTAssert(object.model == .gpt35_turbo)
         XCTAssert(object.messages.count == 1)
         XCTAssert(object.tools == [.function(.init(name: "get_current_weather",
@@ -143,7 +143,7 @@ final class DecoderTests: XCTestCase {
             "top_logprobs": 2
           }
         """
-        let object = try JSONDecoder.decode(OAIChatCompletion.CreateParameter.self, from: json)
+        let object = try JSONDecoder.decode(OAIChatCompletion.Parameters.self, from: json)
         XCTAssert(object.model == .gpt35_turbo)
         XCTAssert(object.logprobs == true)
         XCTAssert(object.top_logprobs == 2)
@@ -176,7 +176,7 @@ final class DecoderTests: XCTestCase {
           }
         }
         """#
-        let object = try JSONDecoder.decode(OAIChatCompletion.CreateResponse.self, from: json)
+        let object = try JSONDecoder.decode(OAIChatCompletion.Response.self, from: json)
         XCTAssert(object.id == "chatcmpl-123")
         XCTAssert(object.object == .chat_completion)
         XCTAssert(object.created == 1677652288)
@@ -226,7 +226,7 @@ final class DecoderTests: XCTestCase {
           }
         }
         """#
-        let object = try JSONDecoder.decode(OAIChatCompletion.CreateResponse.self, from: json)
+        let object = try JSONDecoder.decode(OAIChatCompletion.Response.self, from: json)
         XCTAssert(object.id == "chatcmpl-abc123")
         XCTAssert(object.object == .chat_completion)
         XCTAssert(object.created == 1699896916)
