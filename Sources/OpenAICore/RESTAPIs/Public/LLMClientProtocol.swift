@@ -24,19 +24,26 @@ public struct LLMResponse {
     }
 }
 
-public struct UploadFileFormData {
+public enum LLMMultipartField {
     
-    public let fileURL: URL
-    public let name: String
-    public let fileName: String?
-    public let mimeType: String?
-    
-    public init(fileURL: URL, name: String, fileName: String? = nil, mimeType: String? = nil) {
-        self.fileURL = fileURL
-        self.name = name
-        self.fileName = fileName
-        self.mimeType = mimeType
+    public struct File {
+        
+        public let fileURL: URL
+        public let name: String
+        public let fileName: String?
+        public let mimeType: String?
+        
+        public init(fileURL: URL, name: String, fileName: String? = nil, mimeType: String? = nil) {
+            self.fileURL = fileURL
+            self.name = name
+            self.fileName = fileName
+            self.mimeType = mimeType
+        }
+        
     }
+    
+    case string(name: String, value: String)
+    case file(File)
 }
 
 public protocol LLMClientProtocol {
@@ -45,7 +52,7 @@ public protocol LLMClientProtocol {
     var decoder: JSONDecoder { get }
     
     func data(for request: HTTPRequest) async throws -> LLMResponse
-    func upload(for request: HTTPRequest, from file: UploadFileFormData) async throws -> LLMResponse
+    func upload(for request: HTTPRequest, from fields: [LLMMultipartField]) async throws -> LLMResponse
     func upload(for request: HTTPRequest, from bodyData: Data) async throws -> LLMResponse
     func serverSendEvent(for request: HTTPRequest, from bodyData: Data, failure: (_ response: LLMResponse) async throws -> Void) async throws -> AsyncThrowingStream<Data, Error>
 }

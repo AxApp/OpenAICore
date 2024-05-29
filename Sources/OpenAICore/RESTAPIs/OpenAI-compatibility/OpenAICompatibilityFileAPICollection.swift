@@ -34,7 +34,8 @@ public extension OpenAICompatibilityFileAPICollection {
     func file_upload(_ file: URL, purpose: Purpose) async throws -> File {
         var request = client.request(of: serivce, path: paths.prefix + "/files")
         request.method = .post
-        let response = try await client.upload(for: request, from: .init(fileURL: file, name: "file"))
+        let response = try await client.upload(for: request, from: [.file(.init(fileURL: file, name: "file")),
+                                                                    .string(name: "purpose", value: purpose.rawValue)])
         try validate(response)
         return try client.decode(response)
     }
