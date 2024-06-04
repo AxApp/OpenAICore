@@ -15,23 +15,63 @@ public struct LLMHost: RawRepresentable, ExpressibleByStringLiteral, Codable, Eq
     public static let qwen        = LLMHost(rawValue: "https://dashscope.aliyuncs.com")
     public static let open_router = LLMHost(rawValue: "https://openrouter.ai")
     
+    public let scheme: String?
+    public let host: String?
+    public let port: Int?
+
     public let rawValue: String
     
     public init(rawValue: String) {
+        if let components = URLComponents(string: rawValue) {
+            host = components.host
+            port = components.port
+            scheme = components.scheme
+        } else {
+            host = nil
+            port = nil
+            scheme = nil
+        }
+        self.rawValue = rawValue
+    }
+    
+    public init(scheme: String? = nil, host: String? = nil, port: Int? = nil) {
+        var scheme = scheme
+        var host = host
+        var port = port
+        
+        if let components = host.flatMap(URLComponents.init(string:)) {
+            scheme = components.scheme ?? scheme
+            host = components.host ?? host
+            port = components.port ?? port
+        }
+        
+        var rawValue = ""
+        if let scheme = scheme {
+            rawValue += scheme + "://"
+        }
+        if let host = host {
+            rawValue += host
+        }
+        if let port = port {
+            rawValue += ":\(port)"
+        }
+        self.scheme = scheme
+        self.host = host
+        self.port = port
         self.rawValue = rawValue
     }
     
     public init(stringLiteral value: String) {
-        self.rawValue = value
+        self.init(rawValue: value)
     }
     
     public init?(_ rawValue: String?) {
         guard let rawValue = rawValue else { return nil }
-        self.rawValue = rawValue
+        self.init(rawValue: rawValue)
     }
     
     public init(_ rawValue: String) {
-        self.rawValue = rawValue
+        self.init(rawValue: rawValue)
     }
     
 }
