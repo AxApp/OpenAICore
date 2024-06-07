@@ -91,18 +91,35 @@ public extension OpenAICompatibilityChatCompletion {
     
     enum QwenMessage: Codable {
         case vl(OAIChatCompletion.UserMessage)
+        case system_files(OpenAICompatibilityChatCompletion.QwenSystemFilesMessage)
     }
+    
+    /// https://help.aliyun.com/document_detail/2788814.html?spm=a2c4g.11186623.0.i1#616a32b7c3nif
+    public struct QwenSystemFilesMessage: Codable {
+        public var role: OAIChatCompletion.Role = .system
+        public var content: String
+        
+        public init(file_ids: [String]) {
+            self.content = file_ids.map({ "fileid://\($0)" }).joined(separator: ",")
+        }
+        
+        public mutating func reset(file_ids: [String]) {
+            self.content = file_ids.map({ "fileid://\($0)" }).joined(separator: ",")
+        }
+    }
+    
 }
 
 
 public extension OpenAICompatibilityChatCompletion {
+    
     struct MoonshotPartialMessage: Codable {
         public var role: OAIChatCompletion.Role
         public var name: String
         public var content: String
         public var partial: Bool
         
-        public init(role: OAIChatCompletion.Role, name: String = "", content: String = "", partial: Bool = true) {
+        public init(role: OAIChatCompletion.Role = .assistant, name: String = "", content: String = "", partial: Bool = true) {
             self.role = role
             self.name = name
             self.content = content

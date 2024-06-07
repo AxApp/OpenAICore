@@ -33,8 +33,17 @@ public struct OpenAICompatibilityFile {
         case ok
     }
     
-    public typealias Response = File<Status>
-    public struct File<Status: Codable>: Codable, Identifiable {
+    
+    public struct Content: Codable {
+        public let content: String
+        public let file_type: String
+        public let filename: String
+        public let title: String
+        public let type: String
+    }
+
+    public typealias Response = File<Status, Purpose>
+    public struct File<Status: Codable, Purpose: Codable>: Codable, Identifiable {
         /// 文件的唯一标识符，可在API端点中引用。
         public let id: String
         /// 对象类型，始终为 "file"。

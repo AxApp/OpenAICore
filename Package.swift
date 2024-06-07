@@ -19,7 +19,6 @@ let package = Package(
         .package(url: "https://github.com/linhay/STJSON", from: "1.1.3"),
         .package(url: "https://github.com/linhay/Tiktoken", from: "0.0.5"),
         .package(url: "https://github.com/Flight-School/AnyCodable", from: "0.6.7"),
-//         .package(path: "../Tiktoken"),
     ],
     targets: [
         .macro(

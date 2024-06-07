@@ -10,7 +10,7 @@ import STJSON
 
 /// openai: https://platform.openai.com/docs/api-reference/files
 /// moonshot: https://platform.moonshot.cn/docs/api/partial#partial-mode
-/// qwen: https://help.aliyun.com/zh/dashscope/developer-reference/openai-file-interface?spm=a2c4g.11186623.0.0.34465b78X2jGV3#00dd6fed5amwh
+/// qwen: https://help.aliyun.com/zh/dashscope/developer-reference/openai-file-interface?spm=a2c4g.11186623.0.0.230b7defwUoypA#c067b349252tu
 public protocol OpenAICompatibilityFileAPICollection: LLMAPICollection {
    
     associatedtype File: Codable & Identifiable
@@ -40,6 +40,22 @@ public extension OpenAICompatibilityFileAPICollection {
         return try client.decode(response)
     }
     
+    func file_delete(id: [File.ID]) async throws -> [Deleted] {
+       try await withThrowingTaskGroup(of: Deleted.self) { group in
+           for id in id {
+               group.addTask {
+                   try await file_delete(id: id)
+               }
+           }
+            
+            var list = [Deleted]()
+            for try await result in group {
+                list.append(result)
+            }
+            return list
+        }
+    }
+    
     func file_delete(id: File.ID) async throws -> Deleted {
         var request = client.request(of: serivce, path: paths.prefix + "/files/\(id)")
         request.method = .delete
@@ -55,10 +71,13 @@ public extension OpenAICompatibilityFileAPICollection {
         return try client.decode(response)
     }
     
-    func file_content(id: File.ID) async throws -> Data {
+    /// 通义千问不支持该接口
+    /// openai 不支持 purpose: user_data / assistants
+    /// Kimi 支持文件内容提取
+    func file_content(id: File.ID) async throws -> OpenAICompatibilityFile.Content {
         let request = client.request(of: serivce, path: paths.prefix + "/files/\(id)/content")
         let response = try await client.data(for: request)
         try validate(response)
-        return response.data
+        return try client.decode(response)
     }
 }

@@ -64,11 +64,11 @@ public struct LLMModel: Equatable, Codable, Hashable {
 }
 
 public extension LLMModelOrganization {
-    static let openai: LLMModelOrganization    = "openai"
+    static let openai: LLMModelOrganization      = "openai"
     static let open_router: LLMModelOrganization = "open_router"
-    static let moonshot: LLMModelOrganization  = "moonshot"
+    static let moonshot: LLMModelOrganization    = "moonshot"
     /// 通义千问
-    static let dashscope: LLMModelOrganization = "dashscope"
+    static let dashscope: LLMModelOrganization   = "dashscope"
 }
 
 public extension LLMModelToken {
@@ -81,22 +81,29 @@ public extension LLMModelToken {
 
 // GPT4
 public extension LLMModel {
-    
-    static let GPT4s: [LLMModel] = [
+
+    static let GPT4Os: [LLMModel] = [
         .gpt4o,
-        .gpt4_turbo_preview,
-        .gpt4_vision_preview,
-        .gpt4,
-        .gpt4_32k
+        .gpt4o_2024_05_13
     ]
     
-    static let gpt4o = LLMModel(token: 128000, organization: .openai, name: "gpt-4o")
-
-    static let gpt4_0125_preview        = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-0125-preview")
+    static let GPT4s: [LLMModel] = [
+        .gpt4_turbo,
+        .gpt4_turbo_2024_04_09
+    ]
+    
+    static let gpt4o = LLMModel(token: .x128k, organization: .openai, name: "gpt-4o")
+    static let gpt4o_2024_05_13 = LLMModel(token: .x128k, organization: .openai, name: "gpt-4o-2024-05-13")
+    
+    static let gpt4_turbo               = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-turbo")
+    static let gpt4_turbo_2024_04_09    = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-turbo-2024-04-09")
+    
     static let gpt4_turbo_preview       = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-turbo-preview")
+    static let gpt4_0125_preview        = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-0125-preview")
     static let gpt4_1106_preview        = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-1106-preview")
     static let gpt4_vision_preview      = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-vision-preview")
     static let gpt4_1106_vision_preview = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-1106-vision-preview")
+    
     static let gpt4                     = LLMModel(token: .x8k,   organization: .openai, name: "gpt-4")
     static let gpt4_0613                = LLMModel(token: .x8k,   organization: .openai, name: "gpt-4-0613")
     static let gpt4_32k                 = LLMModel(token: .x8k,   organization: .openai, name: "gpt-4-32k")
@@ -136,9 +143,9 @@ public extension LLMModel {
     /// https://help.aliyun.com/zh/dashscope/developer-reference/api-details?spm=a2c4g.11186623.0.0.3edee0f6lSCW6E
     static let qwen_turbo = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-turbo")
     static let qwen_plus  = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-plus")
+    static let qwen_long  = LLMModel(token: 10_000_000, organization: .dashscope, name: "qwen-long")
     static let qwen_max   = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-max")
     static let qwen_max_longcontext = LLMModel(token: .x8k, organization: .dashscope, name: "qwen-max-longcontext")
-    static let qwen_long = LLMModel(token: 10_000_000, organization: .dashscope, name: "qwen-long")
 
 
     static let qwen_vl_plus = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-vl-plus")

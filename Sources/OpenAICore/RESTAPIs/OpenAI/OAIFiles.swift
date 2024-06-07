@@ -11,8 +11,9 @@ public struct OAIFile {
     
     public enum Purpose: String,Codable {
         case fine_tune = "fine-tune"
-        case batch
         case assistants
+        case batch
+        case user_data
         case vision
     }
     
@@ -26,6 +27,6 @@ public struct OAIFile {
     }
     
     public typealias Deleted  = OpenAICompatibilityFile.Deleted
-    public typealias Response = OpenAICompatibilityFile.File<Status>
+    public typealias Response = OpenAICompatibilityFile.File<Status, Purpose>
     
 }
