@@ -54,25 +54,34 @@ public extension LLMAPICollection {
 public extension LLMAPICollection {
     
     func validate<Response: Decodable>(_ response: LLMResponse) throws -> Response {
-        if response.response.status.kind != .successful {
-            if let error = try? JSONDecoder.decode(OllamaError.self, from: response.data) {
-                throw error
-            } else {
-                throw OllamaError(error: String.init(data: response.data, encoding: .utf8) ?? "")
-            }
+        guard response.response.status.kind != .successful else {
+            return try JSONDecoder.decode(Response.self, from: response.data)
         }
-        return try JSONDecoder.decode(Response.self, from: response.data)
+        
+        if let error = try? JSONDecoder.decode(OAIErrorResponse.self, from: response.data) {
+            throw error.error
+        } else if let error = try? JSONDecoder.decode(OllamaError.self, from: response.data) {
+            throw error
+        } else if let error = try? JSONDecoder.decode(OAIError.self, from: response.data) {
+            throw error
+        } else {
+            throw OllamaError(error: String.init(data: response.data, encoding: .utf8) ?? "")
+        }
     }
     
     func validate(_ response: LLMResponse) throws -> Void {
-        if response.response.status.kind != .successful {
-            if let error = try? JSONDecoder.decode(OllamaError.self, from: response.data) {
-                throw error
-            } else if let error = try? JSONDecoder.decode(OAIErrorResponse.self, from: response.data) {
-                throw error.error
-            } else {
-                throw OllamaError(error: String.init(data: response.data, encoding: .utf8) ?? "")
-            }
+        guard response.response.status.kind != .successful else {
+            return
+        }
+        
+        if let error = try? JSONDecoder.decode(OAIErrorResponse.self, from: response.data) {
+            throw error.error
+        } else if let error = try? JSONDecoder.decode(OllamaError.self, from: response.data) {
+            throw error
+        } else if let error = try? JSONDecoder.decode(OAIError.self, from: response.data) {
+            throw error
+        } else {
+            throw OllamaError(error: String.init(data: response.data, encoding: .utf8) ?? "")
         }
     }
     

@@ -66,4 +66,16 @@ public struct OAIError: Codable, LocalizedError {
         self.code = code
     }
     
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.message = try container.decode(String.self, forKey: .message)
+        self.type = try container.decode(OAIError.Kind.self, forKey: .type)
+        self.param = try container.decodeIfPresent(String.self, forKey: .param)
+        if let code = try? container.decodeIfPresent(String.self, forKey: .code) {
+            self.code = code
+        } else {
+            self.code = try container.decodeIfPresent(Int.self, forKey: .code)?.description
+        }
+    }
+    
 }
