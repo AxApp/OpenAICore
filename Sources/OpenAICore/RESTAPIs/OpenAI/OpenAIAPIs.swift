@@ -13,7 +13,7 @@ public struct OpenAIAPIs: OpenAIAPICollection, OpenAICompatibilityFileAPICollect
     public typealias Purpose = OAIFile.Purpose
     public typealias Deleted = OAIFile.Deleted
   
-    public let paths: LLMAPIPath = .openAI
+    public var file_paths: OpenAICompatibilityFilePaths = .init(.openAI)
     public var client: any LLMClientProtocol
     public var serivce: any LLMSerivce
     

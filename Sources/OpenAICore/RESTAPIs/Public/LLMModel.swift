@@ -8,7 +8,7 @@
 import Foundation
 
 public struct LLMModelOrganization: Equatable, RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
-
+    
     public let rawValue: String
     
     public init(rawValue: String) {
@@ -34,7 +34,7 @@ public struct LLMModelToken: Equatable, RawRepresentable, Codable, Hashable, Exp
 }
 
 public struct LLMModel: Equatable, Codable, Hashable {
-
+    
     public let token: LLMModelToken
     public let organization: LLMModelOrganization
     public let name: String
@@ -81,7 +81,7 @@ public extension LLMModelToken {
 
 // GPT4
 public extension LLMModel {
-
+    
     static let GPT4Os: [LLMModel] = [
         .gpt4o,
         .gpt4o_2024_05_13
@@ -138,6 +138,13 @@ public extension LLMModel {
 public extension LLMModel {
     
     static let qwens: [LLMModel] = [.qwen_turbo, .qwen_plus, .qwen_max, .qwen_max_longcontext, .qwen_long]
+    static let qwen2s: [LLMModel] = [
+        .qwen2_57b_a14b_instruct,
+        .qwen2_72b_instruct,
+        .qwen2_7b_instruct,
+        .qwen2_1_5b_instruct,
+        .qwen2_0_5b_instruct
+    ]
     static let qwenVLs: [LLMModel] = [.qwen_vl_max, .qwen_vl_plus]
     
     /// https://help.aliyun.com/zh/dashscope/developer-reference/api-details?spm=a2c4g.11186623.0.0.3edee0f6lSCW6E
@@ -146,8 +153,14 @@ public extension LLMModel {
     static let qwen_long  = LLMModel(token: 10_000_000, organization: .dashscope, name: "qwen-long")
     static let qwen_max   = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-max")
     static let qwen_max_longcontext = LLMModel(token: .x8k, organization: .dashscope, name: "qwen-max-longcontext")
-
-
+    
+    static let qwen2_57b_a14b_instruct = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen2-57b-a14b-instruct")
+    static let qwen2_72b_instruct      = LLMModel(token: .x128k, organization: .dashscope, name: "qwen2-72b-instruct")
+    static let qwen2_7b_instruct       = LLMModel(token: .x128k, organization: .dashscope, name: "qwen2-7b-instruct")
+    static let qwen2_1_5b_instruct     = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen2-1.5b-instruct")
+    static let qwen2_0_5b_instruct     = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen2-0.5b-instruct")
+    
+    
     static let qwen_vl_plus = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-vl-plus")
     static let qwen_vl_max  = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-vl-max")
 }

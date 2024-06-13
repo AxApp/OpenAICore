@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct OpenAICompatibilityAPIs: OpenAICompatibilityChatAPICollection, OpenAICompatibilityFileAPICollection {
+public struct OpenAICompatibilityAPIs: OpenAICompatibilityChatAPICollection, OpenAICompatibilityFileAPICollection { 
     
     public typealias File    = OpenAICompatibilityFile.Response
     public typealias Purpose = OpenAICompatibilityFile.Purpose
@@ -23,13 +23,16 @@ public struct OpenAICompatibilityAPIs: OpenAICompatibilityChatAPICollection, Ope
     
     public var client: any LLMClientProtocol
     public var serivce: any LLMSerivce
-    public var paths: LLMAPIPath
+    public var chat_paths: OpenAICompatibilityChatPaths
+    public var file_paths: OpenAICompatibilityFilePaths
 
     public init(client: any LLMClientProtocol,
                 serivce: any LLMSerivce,
                 paths: LLMAPIPath) {
         self.client = client
         self.serivce = serivce
-        self.paths = paths
+        self.chat_paths = .init(paths)
+        self.file_paths = .init(paths)
     }
+    
 }
