@@ -22,14 +22,29 @@ public struct LLMModelOrganization: Equatable, RawRepresentable, Codable, Hashab
 }
 
 public struct LLMModelToken: Equatable, RawRepresentable, Codable, Hashable, ExpressibleByIntegerLiteral {
+    
     public let rawValue: Int
+    public let input: Int?
+    public let output: Int?
+
+    public func limit(input: Int? = nil, output: Int? = nil) -> LLMModelToken {
+        .init(self.rawValue, input: input, output: output)
+    }
+
+    public init(_ rawValue: Int, input: Int? = nil, output: Int? = nil) {
+        self.rawValue = rawValue
+        self.input = input
+        self.output = output
+    }
     
     public init(rawValue: Int) {
         self.rawValue = rawValue
+        self.input = nil
+        self.output = nil
     }
     
     public init(integerLiteral value: Int) {
-        self.rawValue = value
+        self.init(rawValue: value)
     }
 }
 
@@ -67,6 +82,7 @@ public extension LLMModelOrganization {
     static let openai: LLMModelOrganization      = "openai"
     static let open_router: LLMModelOrganization = "open_router"
     static let moonshot: LLMModelOrganization    = "moonshot"
+    static let zhipuai: LLMModelOrganization     = "zhipuai"
     /// 通义千问
     static let dashscope: LLMModelOrganization   = "dashscope"
 }
@@ -132,6 +148,20 @@ public extension LLMModel {
     
 }
 
+// https://open.bigmodel.cn/dev/api#http_auth
+public extension LLMModel {
+    
+    static let glms: [LLMModel] = [.glm_4_0520, .glm_4, glm_4_air, glm_4_airX, glm_4_flash, glm_4v, glm_3_turbo]
+    static let glm_4_0520  = LLMModel(token: .x128k, organization: .zhipuai, name: "GLM-4-0520")
+    static let glm_4       = LLMModel(token: .x128k, organization: .zhipuai, name: "GLM-4")
+    static let glm_4_air   = LLMModel(token: .x128k, organization: .zhipuai, name: "GLM-4-Air")
+    static let glm_4_airX  = LLMModel(token: .x128k, organization: .zhipuai, name: "GLM-4-AirX")
+    static let glm_4_flash = LLMModel(token: .x128k, organization: .zhipuai, name: "GLM-4-Flash")
+    static let glm_4v      = LLMModel(token: 2_000,  organization: .zhipuai, name: "GLM-4V")
+    static let glm_3_turbo = LLMModel(token: .x128k, organization: .zhipuai, name: "GLM-3-Turbo")
+
+}
+
 
 // 通义千问
 // https://help.aliyun.com/zh/dashscope/developer-reference/model-introduction?spm=a2c4g.11186623.0.0.1093140b93noQ5
@@ -148,17 +178,36 @@ public extension LLMModel {
     static let qwenVLs: [LLMModel] = [.qwen_vl_max, .qwen_vl_plus]
     
     /// https://help.aliyun.com/zh/dashscope/developer-reference/api-details?spm=a2c4g.11186623.0.0.3edee0f6lSCW6E
-    static let qwen_turbo = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-turbo")
-    static let qwen_plus  = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-plus")
-    static let qwen_long  = LLMModel(token: 10_000_000, organization: .dashscope, name: "qwen-long")
-    static let qwen_max   = LLMModel(token: .x8k,   organization: .dashscope, name: "qwen-max")
-    static let qwen_max_longcontext = LLMModel(token: .x8k, organization: .dashscope, name: "qwen-max-longcontext")
-    
-    static let qwen2_57b_a14b_instruct = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen2-57b-a14b-instruct")
-    static let qwen2_72b_instruct      = LLMModel(token: .x128k, organization: .dashscope, name: "qwen2-72b-instruct")
-    static let qwen2_7b_instruct       = LLMModel(token: .x128k, organization: .dashscope, name: "qwen2-7b-instruct")
-    static let qwen2_1_5b_instruct     = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen2-1.5b-instruct")
-    static let qwen2_0_5b_instruct     = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen2-0.5b-instruct")
+    static let qwen_turbo = LLMModel(token: .init(rawValue: 8_000).limit(input: 6_000, output: 2_000),
+                                     organization: .dashscope,
+                                     name: "qwen-turbo")
+    static let qwen_plus  = LLMModel(token: .init(rawValue: 32_000).limit(input: 30_000, output: 2_000),
+                                     organization: .dashscope,
+                                     name: "qwen-plus")
+    static let qwen_long  = LLMModel(token: .init(rawValue: 10_000_000).limit(output: 2_000),
+                                     organization: .dashscope,
+                                     name: "qwen-long")
+    static let qwen_max   = LLMModel(token: qwen_turbo.token,
+                                     organization: .dashscope,
+                                     name: "qwen-max")
+    static let qwen_max_longcontext = LLMModel(token: .init(rawValue: 30_000).limit(input: 28_000, output: 2_000),
+                                               organization: .dashscope,
+                                               name: "qwen-max-longcontext")
+    static let qwen2_72b_instruct      = LLMModel(token: .x128k.limit(input: 128_000, output: 6_144),
+                                                  organization: .dashscope,
+                                                  name: "qwen2-72b-instruct")
+    static let qwen2_57b_a14b_instruct = LLMModel(token: .x32k.limit(input: 30_720, output: 6_144),
+                                                  organization: .dashscope,
+                                                  name: "qwen2-57b-a14b-instruct")
+    static let qwen2_7b_instruct       = LLMModel(token: qwen2_57b_a14b_instruct.token,
+                                                  organization: .dashscope,
+                                                  name: "qwen2-7b-instruct")
+    static let qwen2_1_5b_instruct     = LLMModel(token: .x32k.limit(input: 30_720, output: 6_144),
+                                                  organization: .dashscope,
+                                                  name: "qwen2-1.5b-instruct")
+    static let qwen2_0_5b_instruct     = LLMModel(token: qwen2_1_5b_instruct.token,
+                                                  organization: .dashscope,
+                                                  name: "qwen2-0.5b-instruct")
     
     
     static let qwen_vl_plus = LLMModel(token: .x32k,  organization: .dashscope, name: "qwen-vl-plus")

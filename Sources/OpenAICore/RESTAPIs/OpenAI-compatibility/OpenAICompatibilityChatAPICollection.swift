@@ -32,7 +32,18 @@ public extension OpenAICompatibilityChatAPICollection {
                           options: OpenAICompatibilityChatCompletion.Options? = nil) async throws -> OAIChatCompletion.Response {
         try await upload(chat_paths.chat_completions,
                          parameters.toJSON.merged(with: options?.toJSON ?? JSON()),
-                         method: .post)
+                         method: .post, afterResponse: { response in
+            guard response.response.status.kind == .successful else {
+                return response
+            }
+            
+            var json = try JSON(data: response.data)
+            /// fix: zhipuai
+            if !json["object"].exists() {
+                json["object"] = JSON(stringLiteral: OAIChatCompletion.Object.chat_completion.rawValue)
+            }
+            return LLMResponse(data: try json.rawData(), response: response.response)
+        })
     }
     
     func chat_completions(streamChunk parameters: OpenAICompatibilityChatCompletion.Parameters,
@@ -52,7 +63,13 @@ public extension OpenAICompatibilityChatAPICollection {
             for chunk in try merge.parse(chunk: element) {
                 switch chunk {
                 case .chunk(let data):
-                    try chunks.append(JSONDecoder.decode(OAIChatCompletion.StreamResponse.self, from: data))
+                    var json = try JSON(data: data)
+                    /// fix: zhipuai
+                    if !json["object"].exists() {
+                        json["object"] = JSON(stringLiteral: OAIChatCompletion.Object.chat_completion_chunk.rawValue)
+                    }
+                    
+                    try chunks.append(JSONDecoder.decode(OAIChatCompletion.StreamResponse.self, from: json.rawData()))
                 case .finish:
                     break
                 case .other:

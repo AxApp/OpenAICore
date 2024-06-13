@@ -108,12 +108,16 @@ public extension LLMAPICollection {
     func upload<Parameters: Encodable, Response: Decodable>(_ path: String,
                                                             _ parameters: Parameters,
                                                             method: HTTPRequest.Method,
-                                                            beforeRequest: ((inout HTTPRequest) -> Void)? = nil) async throws -> Response {
+                                                            beforeRequest: ((inout HTTPRequest) -> Void)? = nil,
+                                                            afterResponse: ((_ response: LLMResponse) async throws -> LLMResponse)? = nil) async throws -> Response {
         var request = client.request(of: serivce, path: path)
         request.method = method
         let request_body = try client.encode(parameters)
         beforeRequest?(&request)
-        let response = try await client.upload(for: request, from: request_body)
+        var response = try await client.upload(for: request, from: request_body)
+        if let afterResponse = afterResponse {
+            response = try await afterResponse(response)
+        }
         return try validate(response)
     }
     
