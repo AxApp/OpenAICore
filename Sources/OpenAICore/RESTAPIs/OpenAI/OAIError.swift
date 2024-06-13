@@ -51,16 +51,16 @@ public struct OAIError: Codable, LocalizedError {
     }
     
     public let message: String
-    public let type: Kind
+    public let type: Kind?
     public let param: String?
     public let code: String?
     public var errorDescription: String? { message }
     
-    public init(type: Kind,
+    public init(type: Kind? = nil,
                 message: String? = nil,
                 param: String? = nil,
                 code: String? = nil) {
-        self.message = message ?? type.rawValue
+        self.message = message ?? type?.rawValue ?? ""
         self.type = type
         self.param = param
         self.code = code
@@ -69,7 +69,7 @@ public struct OAIError: Codable, LocalizedError {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.message = try container.decode(String.self, forKey: .message)
-        self.type = try container.decode(OAIError.Kind.self, forKey: .type)
+        self.type = try container.decodeIfPresent(OAIError.Kind.self, forKey: .type)
         self.param = try container.decodeIfPresent(String.self, forKey: .param)
         if let code = try? container.decodeIfPresent(String.self, forKey: .code) {
             self.code = code
