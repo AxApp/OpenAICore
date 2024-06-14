@@ -60,7 +60,9 @@ public struct OAIChatCompletionStreamMerge {
         chunks.map(\.choices).joined().forEach { choice in
             if var raw = raw_store[choice.index] {
                 raw.finish_reason = choice.finish_reason ?? raw.finish_reason
-                raw.logprobs.content.append(contentsOf: choice.logprobs.content)
+                if let content = raw.logprobs.content {
+                    raw.logprobs.content = content
+                }
                 if let content = choice.delta.content {
                     raw.delta.content = (raw.delta.content ?? "") + content
                 }

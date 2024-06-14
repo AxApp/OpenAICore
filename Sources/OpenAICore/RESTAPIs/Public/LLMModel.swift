@@ -26,11 +26,11 @@ public struct LLMModelToken: Equatable, RawRepresentable, Codable, Hashable, Exp
     public let rawValue: Int
     public let input: Int?
     public let output: Int?
-
+    
     public func limit(input: Int? = nil, output: Int? = nil) -> LLMModelToken {
         .init(self.rawValue, input: input, output: output)
     }
-
+    
     public init(_ rawValue: Int, input: Int? = nil, output: Int? = nil) {
         self.rawValue = rawValue
         self.input = input
@@ -60,6 +60,11 @@ public struct LLMModel: Equatable, Codable, Hashable {
         self.name = name
     }
     
+    /// 适配豆包推理点
+    public func name(_ string: String) -> LLMModel {
+        .init(token: self.token, organization: self.organization, name: string)
+    }
+    
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.name)
@@ -85,6 +90,8 @@ public extension LLMModelOrganization {
     static let zhipuai: LLMModelOrganization     = "zhipuai"
     /// 通义千问
     static let dashscope: LLMModelOrganization   = "dashscope"
+    /// 字节跳动
+    static let bytedance: LLMModelOrganization   = "bytedance"
 }
 
 public extension LLMModelToken {
@@ -148,6 +155,27 @@ public extension LLMModel {
     
 }
 
+
+//https://www.volcengine.com/docs/82379/1263482
+public extension LLMModel {
+    
+    static let doubaos: [LLMModel] = [
+        .doubao_pro_4k,
+        .doubao_pro_32k,
+        .doubao_pro_128k,
+        .doubao_lite_4k,
+        .doubao_lite_32k,
+        .doubao_lite_128k
+    ]
+    static let doubao_pro_4k    = LLMModel(token: .x4k,   organization: .bytedance, name: "Doubao-pro-4k")
+    static let doubao_pro_32k   = LLMModel(token: .x32k,  organization: .bytedance, name: "Doubao-pro-32k")
+    static let doubao_pro_128k  = LLMModel(token: .x128k, organization: .bytedance, name: "Doubao-pro-128k")
+    static let doubao_lite_4k   = LLMModel(token: .x4k,   organization: .bytedance, name: "Doubao-lite-4k")
+    static let doubao_lite_32k  = LLMModel(token: .x32k,  organization: .bytedance, name: "Doubao-lite-32k")
+    static let doubao_lite_128k = LLMModel(token: .x128k, organization: .bytedance, name: "Doubao-lite-128k")
+    
+}
+
 // https://open.bigmodel.cn/dev/api#http_auth
 public extension LLMModel {
     
@@ -159,7 +187,7 @@ public extension LLMModel {
     static let glm_4_flash = LLMModel(token: .x128k, organization: .zhipuai, name: "GLM-4-Flash")
     static let glm_4v      = LLMModel(token: 2_000,  organization: .zhipuai, name: "GLM-4V")
     static let glm_3_turbo = LLMModel(token: .x128k, organization: .zhipuai, name: "GLM-3-Turbo")
-
+    
 }
 
 

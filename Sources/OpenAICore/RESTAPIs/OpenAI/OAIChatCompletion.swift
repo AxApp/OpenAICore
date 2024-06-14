@@ -626,7 +626,7 @@ public extension OAIChatCompletion {
     }
     
     struct LogProbability: Codable, Equatable {
-        var content: [LogProbabilityContent]
+        var content: [LogProbabilityContent]?
     }
     
     struct StreamResponse: Codable {

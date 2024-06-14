@@ -18,5 +18,6 @@ public struct LLMAPIPath {
     public static let moonshot = LLMAPIPath(prefix: "v1")
     public static let zhipuai  = LLMAPIPath(prefix: "api/paas/v4")
     public static let openAI   = LLMAPIPath(prefix: "v1")
+    public static let doubao   = LLMAPIPath(prefix: "api/v3")
 }
 
