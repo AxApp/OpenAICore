@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct LLMHost: RawRepresentable, ExpressibleByStringLiteral, Codable, Equatable {
+public struct LLMHost: RawRepresentable, ExpressibleByStringLiteral, Codable, Equatable, Sendable {
     
     public static let openAI      = LLMHost(rawValue: "https://api.openai.com")
     public static let moonshot    = LLMHost(rawValue: "https://api.moonshot.cn")
@@ -23,7 +23,8 @@ public struct LLMHost: RawRepresentable, ExpressibleByStringLiteral, Codable, Eq
     public let port: Int?
 
     public let rawValue: String
-    
+    public var url: URL? { URL(string: rawValue) }
+
     public init(rawValue: String) {
         if let components = URLComponents(string: rawValue) {
             host = components.host

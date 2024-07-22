@@ -11,4 +11,8 @@ public struct OllamaError: LocalizedError, Codable {
     
     public let error: String
     
+    public var errorDescription: String? {
+        error
+    }
+    
 }

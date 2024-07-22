@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct LLMModelOrganization: Equatable, RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
+public struct LLMModelOrganization: Equatable, RawRepresentable, Codable, Hashable, Sendable, ExpressibleByStringLiteral {
     
     public let rawValue: String
     
@@ -48,7 +48,7 @@ public struct LLMModelToken: Equatable, RawRepresentable, Codable, Hashable, Exp
     }
 }
 
-public struct LLMModel: Equatable, Codable, Hashable {
+public struct LLMModel: Equatable, Codable, Hashable, Sendable {
     
     public let token: LLMModelToken
     public let organization: LLMModelOrganization
@@ -115,8 +115,11 @@ public extension LLMModel {
         .gpt4_turbo_2024_04_09
     ]
     
-    static let gpt4o = LLMModel(token: .x128k, organization: .openai, name: "gpt-4o")
+    static let gpt4o            = LLMModel(token: .x128k, organization: .openai, name: "gpt-4o")
     static let gpt4o_2024_05_13 = LLMModel(token: .x128k, organization: .openai, name: "gpt-4o-2024-05-13")
+    
+    static let gpt4o_mini               = LLMModel(token: .x128k, organization: .openai, name: "gpt-4o-mini")
+    static let gpt4o_mini_2024_07_18    = LLMModel(token: .x128k, organization: .openai, name: "gpt-4o-mini-2024-07-18")
     
     static let gpt4_turbo               = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-turbo")
     static let gpt4_turbo_2024_04_09    = LLMModel(token: .x128k, organization: .openai, name: "gpt-4-turbo-2024-04-09")

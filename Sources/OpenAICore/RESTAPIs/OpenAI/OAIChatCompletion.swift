@@ -11,7 +11,7 @@ import AnyCodable
 
 public struct OAIChatCompletion: Codable {
     
-    public struct Role: RawRepresentable, Codable, Equatable, Hashable, ExpressibleByStringLiteral {
+    public struct Role: RawRepresentable, Codable, Sendable, Equatable, Hashable, ExpressibleByStringLiteral {
         
         public static let user      = Role(rawValue: "user")
         public static let system    = Role(rawValue: "system")

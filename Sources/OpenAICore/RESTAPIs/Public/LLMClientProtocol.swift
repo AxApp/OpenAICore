@@ -48,13 +48,28 @@ public enum LLMMultipartField {
 
 public protocol LLMClientProtocol {
     
+    typealias RequestProgress = (_ total: Int64, _ completed: Int64) -> Void
     var encoder: JSONEncoder { get }
     var decoder: JSONDecoder { get }
     
-    func data(for request: HTTPRequest) async throws -> LLMResponse
+    func data(for request: HTTPRequest, progress: RequestProgress?) async throws -> LLMResponse
+    func upload(for request: HTTPRequest, fromFile fileURL: URL, progress: RequestProgress?) async throws -> LLMResponse
     func upload(for request: HTTPRequest, from fields: [LLMMultipartField]) async throws -> LLMResponse
     func upload(for request: HTTPRequest, from bodyData: Data) async throws -> LLMResponse
     func serverSendEvent(for request: HTTPRequest, from bodyData: Data, failure: (_ response: LLMResponse) async throws -> Void) async throws -> AsyncThrowingStream<Data, Error>
+}
+
+public extension LLMClientProtocol {
+    
+    func data(for request: HTTPRequest) async throws -> LLMResponse {
+        try await data(for: request, progress: nil)
+    }
+    
+    func upload(for request: HTTPRequest, fromFile fileURL: URL, progress: RequestProgress?) async throws -> LLMResponse {
+        assertionFailure()
+        fatalError()
+    }
+    
 }
 
 public extension LLMClientProtocol {
