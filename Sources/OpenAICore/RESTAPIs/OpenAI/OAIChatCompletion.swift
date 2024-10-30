@@ -36,12 +36,22 @@ public struct OAIChatCompletion: Codable {
     }
     
     public struct Function: Codable, Equatable {
+       
         public var name: String
+        public var description: String?
         public var arguments: String
-        public init(name: String, arguments: String) {
+        public var strict: Bool?
+        
+        public init(name: String,
+                    description: String? = nil,
+                    arguments: String,
+                    strict: Bool? = nil) {
             self.name = name
             self.arguments = arguments
+            self.description = description
+            self.strict = strict
         }
+        
     }
     
     public enum ToolCallType: String, Codable, Equatable {
@@ -54,13 +64,46 @@ public extension OAIChatCompletion {
     enum ResponseFormatType: String, Codable {
         case text
         case json_object
+        case json_schema
     }
     
     struct ResponseFormat: Codable {
-        public let type: ResponseFormatType
+        
+        public struct JsonSchema: Codable, Equatable {
+           
+            public var name: String
+            public var description: String?
+            public var schema: AnyCodable?
+            public var strict: Bool?
+
+            public init(name: String,
+                        description: String? = nil,
+                        schema: AnyCodable,
+                        strict: Bool? = nil) {
+                self.name = name
+                self.schema = schema
+                self.description = description
+                self.strict = strict
+            }
+        }
+        
+        public var type: ResponseFormatType
+        public var json_schema: JsonSchema?
+        
         public init(type: ResponseFormatType) {
             self.type = type
         }
+        
+        public static func json_object() -> ResponseFormat {
+            .init(type: .json_object)
+        }
+        
+        public static func json_schema(_ schema: JsonSchema) -> ResponseFormat {
+           var item = ResponseFormat(type: .json_schema)
+            item.json_schema = schema
+            return item
+        }
+        
     }
     
     enum UserMessageTextContentType: String, Codable {
@@ -101,23 +144,21 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct UserMessageImageURLContent: Codable, ExpressibleByStringLiteral, Equatable {
+    struct UserMessageImageURLContent: Codable, Equatable {
+        
+        enum Detail: String, Codable {
+            case auto
+            case high
+            case low
+        }
         
         public struct WrapperURL: Codable, Equatable {
             let url: String
+            let detail: Detail?
         }
         
-        public var type: UserMessageTextContentType = .image_url
-        public var url: String { image_url.url }
+        public let type: UserMessageTextContentType = .image_url
         var image_url: WrapperURL
-        
-        public init(image_url: String) {
-            self.image_url = .init(url: image_url)
-        }
-        
-        public init(stringLiteral value: StringLiteralType) {
-            self.image_url = .init(url: value)
-        }
     }
     
     enum UserMessageContent: Codable, Equatable {
@@ -125,7 +166,13 @@ public extension OAIChatCompletion {
         case image_url(UserMessageImageURLContent)
         
         public static func text(_ string: String) -> Self { self.text(.init(text: string)) }
-        public static func image_url(_ string: String) -> Self { self.image_url(.init(image_url: string)) }
+       
+        public static func image_url(_ string: String) -> Self {
+            self.image_url(UserMessageImageURLContent.init(image_url: .init(url: string, detail: nil)))
+        }
+        public static func image_url(_ item: UserMessageImageURLContent.WrapperURL) -> Self {
+            self.image_url(UserMessageImageURLContent(image_url: item))
+        }
         
         struct GetType: Codable {
             var type: UserMessageTextContentType
@@ -178,24 +225,22 @@ public extension OAIChatCompletion {
     }
     
     struct AssistantMessage: Codable, Equatable {
-        public var role: Role = .assistant
+        
+        public let role: Role = .assistant
         public var name: String?
+        public var refusal: String?
+        
         public var content: String?
         public var tool_calls: [RequestToolCall]?
         
-        public init(name: String? = nil, content: String? = nil, tool_calls: [RequestToolCall]? = nil) {
-            self.name = name
-            self.content = content
-            self.tool_calls = tool_calls
-        }
+        public init() {}
     }
     
     struct ToolMessage: Codable, Equatable {
-        public var role: Role = .tool
+        public let role: Role = .tool
         public var content: String
         public var tool_call_id: String
-        public init(role: Role, content: String, tool_call_id: String) {
-            self.role = role
+        public init(content: String, tool_call_id: String) {
             self.content = content
             self.tool_call_id = tool_call_id
         }
@@ -229,8 +274,10 @@ public extension OAIChatCompletion {
             .system(.init(content: content))
         }
         
-        public static func assistant(_ content: String) -> Self {
-            .assistant(.init(content: content))
+        public static func assistant(_ builder: (inout AssistantMessage) -> Void) -> Self {
+            var message = AssistantMessage()
+            builder(&message)
+            return .assistant(message)
         }
         
         public static func user(_ content: String) -> Self {
@@ -325,18 +372,17 @@ public extension OAIChatCompletion {
         
         public var name: String
         public var description: String?
-        public var parameters: [String: AnyCodable]
+        public var parameters: AnyCodable
+        public var strict: Bool?
         
-        public init(name: String, description: String?, parameters: [String : AnyCodable]) {
+        public init(name: String,
+                    description: String? = nil,
+                    parameters: AnyCodable,
+                    strict: Bool? = nil) {
             self.name = name
             self.description = description
             self.parameters = parameters
-        }
-        
-        public init(name: String, description: String?, parameters: String) throws {
-            self.name = name
-            self.description = description
-            self.parameters = try JSONDecoder.decode([String: AnyCodable].self, from: parameters)
+            self.strict = strict
         }
     }
     
@@ -395,8 +441,14 @@ public extension OAIChatCompletion {
         
     }
     
+    enum Modality: String, Codable {
+        case text
+        case audio
+    }
+    
+    /// https://platform.openai.com/docs/api-reference/chat/create
     struct Parameters: Codable {
-        
+        public var service_tier: String?
         public var messages: [RequestMessage] = []
         public var model: LLMModel = .gpt35_turbo
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
@@ -405,12 +457,15 @@ public extension OAIChatCompletion {
         public var logit_bias: [String: Int]?
         public var logprobs: Bool?
         public var top_logprobs: Int?
-        /// The maximum number of tokens to generate in the completion.
-        public var max_tokens: Int?
+        public var metadata: AnyCodable?
+        public var store: Bool?
+        public var max_completion_tokens: Int?
+        
         public var n: Int?
         /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
         public var presence_penalty: Double?
         public var response_format: ResponseFormat?
+        public var modalities: [Modality]?
         /// 此功能处于测试阶段。如果指定，我们的系统将尽最大努力确定性地进行采样，以便具有相同 和 参数的重复请求应返回相同的结果。不能保证确定性，您应该参考 response 参数来监视后端的变化。
         public var seed: Int?
         /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
@@ -424,8 +479,10 @@ public extension OAIChatCompletion {
         /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
         public var top_p: Double?
         /// How many chat completion choices to generate for each input message.
-        public var tools: [RequestTool] = []
+        public var tools: [RequestTool]? = []
         public var tool_choice: ToolChoice?
+        /// 是否在工具使用过程中启用并行函数调用。
+        public var parallel_tool_calls: Bool?
         /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
         public var user: String?
         
@@ -437,70 +494,14 @@ public extension OAIChatCompletion {
             return item
         }
         
-        enum CodingKeys: CodingKey {
-            case messages
-            case model
-            case frequency_penalty
-            case logit_bias
-            case logprobs
-            case top_logprobs
-            case max_tokens
-            case n
-            case presence_penalty
-            case response_format
-            case seed
-            case stop
-            case stream
-            case temperature
-            case top_p
-            case tools
-            case tool_choice
-            case user
+        public func finishEdit() -> Self {
+            var item = self
+            if item.tools?.isEmpty == true {
+                item.tools = nil
+            }
+            return item
         }
         
-        public func encode(to encoder: any Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(messages, forKey: .messages)
-            try container.encode(model, forKey: .model)
-            try container.encodeIfPresent(frequency_penalty, forKey: .frequency_penalty)
-            try container.encodeIfPresent(logit_bias, forKey: .logit_bias)
-            try container.encodeIfPresent(logprobs, forKey: .logprobs)
-            try container.encodeIfPresent(top_logprobs, forKey: .top_logprobs)
-            try container.encodeIfPresent(max_tokens, forKey: .max_tokens)
-            try container.encodeIfPresent(n, forKey: .n)
-            try container.encodeIfPresent(presence_penalty, forKey: .presence_penalty)
-            try container.encodeIfPresent(response_format, forKey: .response_format)
-            try container.encodeIfPresent(seed, forKey: .seed)
-            try container.encodeIfPresent(stop, forKey: .stop)
-            try container.encodeIfPresent(stream, forKey: .stream)
-            try container.encodeIfPresent(temperature, forKey: .temperature)
-            try container.encodeIfPresent(top_p, forKey: .top_p)
-            try container.encodeIfPresent(tools.isEmpty ? nil : tools, forKey: .tools)
-            try container.encodeIfPresent(tool_choice, forKey: .tool_choice)
-            try container.encodeIfPresent(user, forKey: .user)
-        }
-        
-        public init(from decoder: any Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            self.messages = try container.decode([RequestMessage].self, forKey: .messages)
-            self.model = try container.decode(LLMModel.self, forKey: .model)
-            self.frequency_penalty = try container.decodeIfPresent(Double.self, forKey: .frequency_penalty)
-            self.logit_bias = try container.decodeIfPresent([String : Int].self, forKey: .logit_bias)
-            self.logprobs = try container.decodeIfPresent(Bool.self, forKey: .logprobs)
-            self.top_logprobs = try container.decodeIfPresent(Int.self, forKey: .top_logprobs)
-            self.max_tokens = try container.decodeIfPresent(Int.self, forKey: .max_tokens)
-            self.n = try container.decodeIfPresent(Int.self, forKey: .n)
-            self.presence_penalty = try container.decodeIfPresent(Double.self, forKey: .presence_penalty)
-            self.response_format = try container.decodeIfPresent(ResponseFormat.self, forKey: .response_format)
-            self.seed = try container.decodeIfPresent(Int.self, forKey: .seed)
-            self.stop = try container.decodeIfPresent([String].self, forKey: .stop)
-            self.stream = try container.decodeIfPresent(Bool.self, forKey: .stream)
-            self.temperature = try container.decodeIfPresent(Double.self, forKey: .temperature)
-            self.top_p = try container.decodeIfPresent(Double.self, forKey: .top_p)
-            self.tools = try container.decodeIfPresent([RequestTool].self, forKey: .tools) ?? []
-            self.tool_choice = try container.decodeIfPresent(ToolChoice.self, forKey: .tool_choice)
-            self.user = try container.decodeIfPresent(String.self, forKey: .user)
-        }
     }
     
 }
