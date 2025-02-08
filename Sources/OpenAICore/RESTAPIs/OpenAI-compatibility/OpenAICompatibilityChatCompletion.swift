@@ -18,6 +18,11 @@ public struct OpenAICompatibilityChatCompletion {
         case text(OpenAICompatibilityChatCompletion.TextMessage)
         case moonshot(OpenAICompatibilityChatCompletion.MoonshotMessage)
         case qwen(OpenAICompatibilityChatCompletion.QwenMessage)
+        
+        public static func text(role: OAIChatCompletion.Role, content: String) -> Message {
+            .text(.init(role: role, content: content))
+        }
+        
     }
     
     public struct TextMessage: Codable, Equatable {

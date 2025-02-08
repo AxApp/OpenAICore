@@ -12,12 +12,13 @@ public struct LLMHost: RawRepresentable, ExpressibleByStringLiteral, Codable, Eq
     public static let openAI      = LLMHost(rawValue: "https://api.openai.com")
     public static let moonshot    = LLMHost(rawValue: "https://api.moonshot.cn")
     public static let baidu_fanyi = LLMHost(rawValue: "https://fanyi-api.baidu.com")
-    public static let qwen        = LLMHost(rawValue: "https://dashscope.aliyuncs.com")
+    public static let bailian     = LLMHost(rawValue: "https://dashscope.aliyuncs.com")
     public static let zhipuai     = LLMHost(rawValue: "https://open.bigmodel.cn")
     public static let open_router = LLMHost(rawValue: "https://openrouter.ai")
     /// https://www.volcengine.com/docs/82379/1263482
-    public static let doubao      = LLMHost(rawValue: "https://ark.cn-beijing.volces.com")
-
+    public static let ark         = LLMHost(rawValue: "https://ark.cn-beijing.volces.com")
+    public static let deepseek    = LLMHost(rawValue: "https://api.deepseek.com")
+    
     public let scheme: String?
     public let host: String?
     public let port: Int?

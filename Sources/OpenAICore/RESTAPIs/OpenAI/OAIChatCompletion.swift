@@ -517,10 +517,16 @@ public extension OAIChatCompletion {
     struct ResponseMessage: Codable, Equatable {
         public var role: Role
         public var content: String?
+        public var reasoning_content: String?
         public var tool_calls: [ResponseToolCall]?
-        public init(role: Role, content: String? = nil, tool_calls: [ResponseToolCall]? = nil) {
+        
+        public init(role: Role,
+                    content: String? = nil,
+                    reasoning_content: String? = nil,
+                    tool_calls: [ResponseToolCall]? = nil) {
             self.role = role
             self.content = content
+            self.reasoning_content = reasoning_content
             self.tool_calls = tool_calls
         }
     }

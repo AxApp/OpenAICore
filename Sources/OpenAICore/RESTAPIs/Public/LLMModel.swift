@@ -99,6 +99,7 @@ public extension LLMModelToken {
     static let x8k: LLMModelToken   = 8192
     static let x16k: LLMModelToken  = 16385
     static let x32k: LLMModelToken  = 32768
+    static let x64k: LLMModelToken  = 64000
     static let x128k: LLMModelToken = 128000
 }
 

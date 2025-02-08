@@ -14,7 +14,7 @@ public class OpenAICompatibilityTests: XCTestCase {
 
     
     func test_qwen() async throws {
-        let request = OpenAICompatibilityAPIs.qwen(OAIClient.shared, token: "sk-")
+        let request = OpenAICompatibilityAPIs.bailian(OAIClient.shared, token: "sk-")
 
         var parameters = OpenAICompatibilityChatCompletion.Parameters()
         parameters.model = .qwen_turbo

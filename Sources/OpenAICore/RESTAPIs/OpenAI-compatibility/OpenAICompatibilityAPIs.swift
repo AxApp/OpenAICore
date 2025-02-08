@@ -12,13 +12,21 @@ public struct OpenAICompatibilityAPIs: OpenAICompatibilityChatAPICollection, Ope
     public typealias File    = OpenAICompatibilityFile.Response
     public typealias Purpose = OpenAICompatibilityFile.Purpose
     public typealias Deleted = OAIFile.Deleted
+
+    public static func deepseek(_ client: any LLMClientProtocol, token: String) -> OpenAICompatibilityAPIs {
+        OpenAICompatibilityAPIs(client: client, serivce: OAISerivce(token: token, host: .deepseek), paths: .openAI)
+    }
+    
+    public static func ark(_ client: any LLMClientProtocol, token: String) -> OpenAICompatibilityAPIs {
+        OpenAICompatibilityAPIs(client: client, serivce: OAISerivce(token: token, host: .ark), paths: .ark)
+    }
     
     public static func moonshot(_ client: any LLMClientProtocol, token: String) -> OpenAICompatibilityAPIs {
         OpenAICompatibilityAPIs(client: client, serivce: OAISerivce(token: token, host: .moonshot), paths: .moonshot)
     }
     
-    public static func qwen(_ client: any LLMClientProtocol, token: String) -> OpenAICompatibilityAPIs {
-        OpenAICompatibilityAPIs(client: client, serivce: OAISerivce(token: token, host: .qwen), paths: .qwen)
+    public static func bailian(_ client: any LLMClientProtocol, token: String) -> OpenAICompatibilityAPIs {
+        OpenAICompatibilityAPIs(client: client, serivce: OAISerivce(token: token, host: .bailian), paths: .bailian)
     }
     
     public var client: any LLMClientProtocol

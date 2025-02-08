@@ -13,6 +13,13 @@ public protocol LLMAPICollection {
     var serivce: LLMSerivce { get }
 }
 
+public struct LLMAPIResponseError: LocalizedError {
+    public let response: LLMResponse
+    public var errorDescription: String? {
+        return String.init(data: response.data, encoding: .utf8)
+    }
+}
+
 public extension LLMAPICollection {
     
     func transform<Element, Transform, Failure: Error>(stream: AsyncThrowingStream<Element, Failure>,
@@ -81,7 +88,7 @@ public extension LLMAPICollection {
         } else if let error = try? JSONDecoder.decode(OAIError.self, from: response.data) {
             throw error
         } else {
-            throw OllamaError(error: String.init(data: response.data, encoding: .utf8) ?? "")
+            throw LLMAPIResponseError(response: response)
         }
     }
     

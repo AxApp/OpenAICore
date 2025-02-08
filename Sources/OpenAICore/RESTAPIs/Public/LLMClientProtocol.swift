@@ -16,12 +16,14 @@ public extension HTTPField.Name {
 }
 
 public struct LLMResponse {
+    
     public let data: Data
     public let response: HTTPResponse
     public init(data: Data, response: HTTPResponse) {
         self.data = data
         self.response = response
     }
+    
 }
 
 public enum LLMMultipartField {
