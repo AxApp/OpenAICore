@@ -29,6 +29,10 @@ public struct OpenAICompatibilityAPIs: OpenAICompatibilityChatAPICollection, Ope
         OpenAICompatibilityAPIs(client: client, serivce: OAISerivce(token: token, host: .bailian), paths: .bailian)
     }
     
+    public static func tencent(_ client: any LLMClientProtocol, token: String) -> OpenAICompatibilityAPIs {
+        OpenAICompatibilityAPIs(client: client, serivce: OAISerivce(token: token, host: .tencent), paths: .tencent)
+    }
+    
     public var client: any LLMClientProtocol
     public var serivce: any LLMSerivce
     public var chat_paths: OpenAICompatibilityChatPaths

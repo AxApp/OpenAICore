@@ -12,6 +12,7 @@ import Alamofire
 struct Test {
     
     enum Keys {
+        static let tencent  = "sk-0yw81eF8MTAxxxuc3Zzw4cHYiV9RwH8q"
         static let ark      = "sk-xxxx-b9b5-47b7-b28f-4936bf99f731"
         static let deepseek = "sk-xxxxxbea85c501xxxxx28f3bf3bd84fd"
         static let bailian  = "sk-xxxxx2e19540adb12ae847dxxxxxxxxx"
@@ -34,6 +35,16 @@ struct Test {
             .text(role: .user, content: "常见的十字花科植物有哪些？")
         ]
         return parameters
+    }
+    
+    
+    /// 27.13s | 支持 Json
+    @Test func tencent_deepseek_v3() async throws {
+        let api = OpenAICompatibilityAPIs.tencent(OAIClient.shared, token: Keys.tencent)
+        var parameters = self.parameters()
+        parameters.model = parameters.model?.name("deepseek-v3")
+        let result = try await api.chat_completions(parameters)
+        print(result)
     }
 
     /// 3.97s | 支持 Json
