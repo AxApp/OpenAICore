@@ -23,6 +23,14 @@ public struct OpenAICompatibilityChatCompletion {
             .text(.init(role: role, content: content))
         }
         
+        public static func system(_ content: String) -> Message {
+            .text(role: .system, content: content)
+        }
+        
+        public static func user(_ content: String) -> Message {
+            .text(role: .user, content: content)
+        }
+        
     }
     
     public struct TextMessage: Codable, Equatable {
