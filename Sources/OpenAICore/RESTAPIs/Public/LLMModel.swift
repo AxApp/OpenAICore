@@ -112,6 +112,13 @@ public extension LLMModel {
     
 }
 
+// 开源大语言模型
+public extension LLMModel {
+
+    static let moonshot_v1_auto = LLMModel(token: .x128k, organization: .moonshot, name: "moonshot-v1-auto")
+    
+}
+
 // GPT4
 public extension LLMModel {
     

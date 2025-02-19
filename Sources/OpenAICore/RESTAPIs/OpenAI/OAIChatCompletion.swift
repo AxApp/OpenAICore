@@ -112,14 +112,16 @@ public extension OAIChatCompletion {
     }
     
     struct RequestToolCall: Codable, Equatable {
-        public var id: Int
+        public var id: String
         public var type: ToolCallType
         public var function: Function
-        public init(id: Int, type: ToolCallType, function: Function) {
+        
+        public init(id: String, type: ToolCallType, function: Function) {
             self.id = id
             self.type = type
             self.function = function
         }
+        
     }
     
     struct SystemMessage: Codable, Equatable {
@@ -237,13 +239,26 @@ public extension OAIChatCompletion {
     }
     
     struct ToolMessage: Codable, Equatable {
+        
         public let role: Role = .tool
         public var content: String
         public var tool_call_id: String
-        public init(content: String, tool_call_id: String) {
+        public var name: String
+
+        public init(name: String,
+                    content: String,
+                    tool_call_id: String) {
+            self.name = name
             self.content = content
             self.tool_call_id = tool_call_id
         }
+        
+        public init(from call: ResponseToolCall) {
+            self.name = call.function.name
+            self.content = call.function.arguments
+            self.tool_call_id = call.id
+        }
+        
     }
     
     enum RequestMessage: Codable, Equatable {
@@ -328,21 +343,25 @@ public extension OAIChatCompletion {
         
     }
     
-    enum RequestToolType: String, Equatable,Codable {
-        case function
+    public struct RequestToolType: RawRepresentable, Equatable, Codable, ExpressibleByStringLiteral {
+        
+        public static let function = RequestToolType(rawValue: "function")
+        
+        public var rawValue: String
+        
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+        
+        public init(stringLiteral value: StringLiteralType) {
+            self.rawValue = value
+        }
+        
     }
     
     enum RequestTool: Codable, Equatable {
         
         case function(RequestFunctionTool)
-        
-        public static func function(_ function: RequestFunctionToolItem) -> Self {
-            .function(.init(function: function))
-        }
-        
-        struct GetType: Codable {
-            var type: RequestToolType
-        }
         
         public func encode(to encoder: any Encoder) throws {
             switch self {
@@ -352,19 +371,20 @@ public extension OAIChatCompletion {
         }
         
         public init(from decoder: any Decoder) throws {
-            switch try GetType(from: decoder).type {
-            case .function:
-                self = .function(try RequestFunctionTool.init(from: decoder))
-            }
+            let function = try RequestFunctionTool(from: decoder)
+            self = .function(function)
         }
     }
     
     struct RequestFunctionTool: Codable, Equatable {
-        public var type: RequestToolType = .function
+        
+        public var type: RequestToolType
         public var function: RequestFunctionToolItem
         
-        public init(function: RequestFunctionToolItem) {
+        public init(type: RequestToolType = .function,
+                    function: RequestFunctionToolItem) {
             self.function = function
+            self.type = type
         }
     }
     
@@ -372,12 +392,12 @@ public extension OAIChatCompletion {
         
         public var name: String
         public var description: String?
-        public var parameters: AnyCodable
+        public var parameters: AnyCodable?
         public var strict: Bool?
         
         public init(name: String,
                     description: String? = nil,
-                    parameters: AnyCodable,
+                    parameters: AnyCodable? = nil,
                     strict: Bool? = nil) {
             self.name = name
             self.description = description
@@ -515,6 +535,7 @@ public extension OAIChatCompletion {
     }
     
     struct ResponseMessage: Codable, Equatable {
+        
         public var role: Role
         public var content: String?
         public var reasoning_content: String?
@@ -539,9 +560,9 @@ public extension OAIChatCompletion {
     
     struct ResponseToolCall: Codable, Equatable {
         public var id: String
-        public var type: ToolCallType
+        public var type: RequestToolType
         public var function: Function
-        public init(id: String, type: ToolCallType, function: Function) {
+        public init(id: String, type: RequestToolType, function: Function) {
             self.id = id
             self.type = type
             self.function = function

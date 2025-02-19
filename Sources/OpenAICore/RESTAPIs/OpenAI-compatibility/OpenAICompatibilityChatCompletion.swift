@@ -15,9 +15,12 @@ public struct OpenAICompatibilityChatCompletion {
     
     @EnumSingleValueCodable
     public enum Message: Codable {
+        
         case text(OpenAICompatibilityChatCompletion.TextMessage)
         case moonshot(OpenAICompatibilityChatCompletion.MoonshotMessage)
         case qwen(OpenAICompatibilityChatCompletion.QwenMessage)
+        case response(OAIChatCompletion.ResponseMessage)
+        case tool(OAIChatCompletion.ToolMessage)
         
         public static func text(role: OAIChatCompletion.Role, content: String) -> Message {
             .text(.init(role: role, content: content))
@@ -43,7 +46,7 @@ public struct OpenAICompatibilityChatCompletion {
     }
     
     // MARK: - Main Request Structure
-    public struct Parameters: Codable {
+    public struct Parameters: Codable, Sendable {
 
         public var messages: [Message]
         public var model: LLMModel?
