@@ -7,14 +7,14 @@
 
 import Foundation
 
-public struct OAIErrorResponse: Codable {
+public struct OAIErrorResponse: Codable, Sendable {
     public let error: OAIError
     public init(error: OAIError) {
         self.error = error
     }
 }
 
-public struct OAIError: Codable, LocalizedError {
+public struct OAIError: Codable, LocalizedError, Sendable {
     
     public static let invalidURL  = OAIError(type: .invalidURL)
     public static let emptyData   = OAIError(type: .emptyData)

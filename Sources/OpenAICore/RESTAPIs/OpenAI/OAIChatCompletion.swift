@@ -9,7 +9,7 @@ import Foundation
 import STJSON
 import AnyCodable
 
-public struct OAIChatCompletion: Codable {
+public struct OAIChatCompletion: Codable, Sendable {
     
     public struct Role: RawRepresentable, Codable, Sendable, Equatable, Hashable, ExpressibleByStringLiteral {
         
