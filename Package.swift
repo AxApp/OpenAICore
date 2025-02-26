@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-syntax.git", from: "510.0.2"),
         .package(url: "https://github.com/apple/swift-http-types.git", from: "1.1.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.3.0"),
-        .package(url: "https://github.com/linhay/STJSON", from: "1.3.0"),
+        .package(url: "https://github.com/linhay/STJSON", from: "1.3.1"),
         .package(url: "https://github.com/linhay/Tiktoken", from: "0.0.5"),
     ],
     targets: [
