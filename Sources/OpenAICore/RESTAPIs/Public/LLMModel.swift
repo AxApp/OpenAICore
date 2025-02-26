@@ -21,7 +21,7 @@ public struct LLMModelOrganization: Equatable, RawRepresentable, Codable, Hashab
     
 }
 
-public struct LLMModelToken: Equatable, RawRepresentable, Codable, Hashable, ExpressibleByIntegerLiteral {
+public struct LLMModelToken: Equatable, RawRepresentable, Codable, Hashable, ExpressibleByIntegerLiteral, Sendable {
     
     public let rawValue: Int
     public let input: Int?

@@ -20,7 +20,7 @@ public struct OAIError: Codable, LocalizedError, Sendable {
     public static let emptyData   = OAIError(type: .emptyData)
     public static let decode_data = OAIError(type: .decode_data)
 
-    public struct Kind: RawRepresentable, ExpressibleByStringLiteral, Codable, Equatable {
+    public struct Kind: RawRepresentable, ExpressibleByStringLiteral, Codable, Equatable, Sendable {
         
         public static let decode_data = Kind(rawValue: "decode_data")
         public static let invalid_request_error = Kind(rawValue: "invalid_request_error")

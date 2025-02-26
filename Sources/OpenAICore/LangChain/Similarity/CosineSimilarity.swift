@@ -65,16 +65,26 @@ public struct JaccardSimilarity: LLMVectorSimilarity {
     
     public init() {}
     
+    public func distance(_ vector1: [Float], _ vector2: [Float]) throws -> Float {
+        .init(try self.distance(vector1, vector2))
+    }
+    
     public func compare(_ lhs: Float, _ rhs: Float) throws -> Bool {
         lhs > rhs
     }
     
-    public func distance(_ vector1: [Float], _ vector2: [Float]) throws -> Float {
-        let set1 = Set(vector1)
-        let set2 = Set(vector2)
+    public static func distance(_ set1: any StringProtocol, _ set2: any StringProtocol) -> Double {
+        self.distance(set1.map(\.description), set2.map(\.description))
+    }
+    
+    public static func distance<T: Hashable>(_ set1: any Collection<T>, _ set2: any Collection<T>) -> Double {
+        self.distance(Set(set1), Set(set2))
+    }
+    
+    public static func distance<T: Hashable>(_ set1: Set<T>, _ set2: Set<T>) -> Double {
         let intersection = set1.intersection(set2).count
         let union = set1.union(set2).count
-        return union > 0 ? Float(intersection) / Float(union) : 0
+        return union == 0 ? 0 : Double(intersection) / Double(union)
     }
 
 }

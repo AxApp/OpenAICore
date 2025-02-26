@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import AnyCodable
+import STJSON
 
 /// openai: https://platform.openai.com/docs/api-reference/files
 /// moonshot: https://platform.moonshot.cn/docs/api/partial#partial-mode
@@ -14,7 +14,7 @@ import AnyCodable
 public struct OpenAICompatibilityChatCompletion {
     
     @EnumSingleValueCodable
-    public enum Message: Codable {
+    public enum Message: Codable, Sendable {
         
         case text(OpenAICompatibilityChatCompletion.TextMessage)
         case moonshot(OpenAICompatibilityChatCompletion.MoonshotMessage)
@@ -36,7 +36,7 @@ public struct OpenAICompatibilityChatCompletion {
         
     }
     
-    public struct TextMessage: Codable, Equatable {
+    public struct TextMessage: Codable, Equatable, Sendable {
         public var role: OAIChatCompletion.Role
         public var content: String
         public init(role: OAIChatCompletion.Role, content: String) {
@@ -105,13 +105,13 @@ public struct OpenAICompatibilityChatCompletion {
 
 public extension OpenAICompatibilityChatCompletion {
     
-    enum QwenMessage: Codable {
+    enum QwenMessage: Codable, Sendable {
         case vl(OAIChatCompletion.UserMessage)
         case system_files(OpenAICompatibilityChatCompletion.QwenSystemFilesMessage)
     }
     
     /// https://help.aliyun.com/document_detail/2788814.html?spm=a2c4g.11186623.0.i1#616a32b7c3nif
-    public struct QwenSystemFilesMessage: Codable {
+    struct QwenSystemFilesMessage: Codable, Sendable {
         public var role: OAIChatCompletion.Role = .system
         public var content: String
         
@@ -129,7 +129,7 @@ public extension OpenAICompatibilityChatCompletion {
 
 public extension OpenAICompatibilityChatCompletion {
     
-    struct MoonshotPartialMessage: Codable {
+    struct MoonshotPartialMessage: Codable, Sendable {
         public var role: OAIChatCompletion.Role
         public var name: String
         public var content: String
@@ -144,7 +144,7 @@ public extension OpenAICompatibilityChatCompletion {
     }
     
     @EnumSingleValueCodable
-    enum MoonshotMessage: Codable {
+    enum MoonshotMessage: Codable, Sendable {
         // 在使用大模型时，有时我们希望通过预填（Prefill）部分模型回复来引导模型的输出。在 Kimi 大模型中，我们提供 Partial Mode 来实现这一功能，它可以帮助我们控制输出格式，引导输出内容，以及让模型在角色扮演场景中保持更好的一致性。您只需要在最后一个 role 为 assistant 的 messages 条目中，增加 "partial": True 即可开启 partial mode。
         case partial(OpenAICompatibilityChatCompletion.MoonshotPartialMessage)
     }

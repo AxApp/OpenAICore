@@ -9,13 +9,12 @@ import Foundation
 import HTTPTypes
 import HTTPTypesFoundation
 import STJSON
-import AnyCodable
 
 public extension HTTPField.Name {
     static var userinfo = HTTPField.Name.init("userinfo")!
 }
 
-public struct LLMResponse {
+public struct LLMResponse: Sendable {
     
     public let data: Data
     public let response: HTTPResponse
@@ -120,7 +119,6 @@ public extension LLMClientProtocol {
 
     func request(of serivce: LLMSerivce, path: String) -> HTTPRequest {
         var request = HTTPRequest(url: .init(string: serivce.host.rawValue)!)
-        request.url
         var path = path
         if !path.hasPrefix("/") {
             path = "/\(path)"

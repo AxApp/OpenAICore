@@ -8,16 +8,16 @@
 import Foundation
 
 /// https://platform.openai.com/docs/guides/prompt-caching
-public struct OAIUsage: Codable, Equatable {
+public struct OAIUsage: Codable, Equatable, Sendable {
     
-    public struct PromptTokensDetails: Codable, Equatable  {
+    public struct PromptTokensDetails: Codable, Equatable, Sendable {
         public var cached_tokens: Int
         public init(cached_tokens: Int) {
             self.cached_tokens = cached_tokens
         }
     }
     
-    public struct CompletionTokensDetails: Codable, Equatable {
+    public struct CompletionTokensDetails: Codable, Equatable, Sendable {
         public var reasoning_tokens: Int
         public init(reasoning_tokens: Int) {
             self.reasoning_tokens = reasoning_tokens

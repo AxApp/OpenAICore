@@ -7,7 +7,7 @@
 
 import Foundation
 import Crypto
-import AnyCodable
+import STJSON
 
 //https://fanyi-api.baidu.com/api/trans/vip/translate
 

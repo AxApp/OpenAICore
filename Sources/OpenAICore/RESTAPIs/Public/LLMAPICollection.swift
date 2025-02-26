@@ -22,44 +22,6 @@ public struct LLMAPIResponseError: LocalizedError {
 
 public extension LLMAPICollection {
     
-    func transform<Element, Transform, Failure: Error>(stream: AsyncThrowingStream<Element, Failure>,
-                                                       transform: @escaping (_ element: Element) throws -> [Transform]) -> AsyncThrowingStream<Transform, Failure> where Failure == any Error {
-            let (new_stream, new_continuation) = AsyncThrowingStream<Transform, Failure>.makeStream()
-            Task {
-                do {
-                    for try await elemet in stream {
-                        for item in try transform(elemet) {
-                            new_continuation.yield(item)
-                        }
-                    }
-                    new_continuation.finish()
-                } catch {
-                    new_continuation.finish(throwing: error)
-                }
-            }
-            return new_stream
-        }
-    
-    func transform<Element, Transform, Failure: Error>(stream: AsyncThrowingStream<Element, Failure>,
-                                                       transform: @escaping (_ element: Element) throws -> Transform) -> AsyncThrowingStream<Transform, Failure> where Failure == any Error {
-            let (new_stream, new_continuation) = AsyncThrowingStream<Transform, Failure>.makeStream()
-            Task {
-                do {
-                    for try await elemet in stream {
-                        new_continuation.yield(try transform(elemet))
-                    }
-                    new_continuation.finish()
-                } catch {
-                    new_continuation.finish(throwing: error)
-                }
-            }
-            return new_stream
-        }
-    
-}
-
-public extension LLMAPICollection {
-    
     func validate<Response: Decodable>(_ response: LLMResponse) throws -> Response {
         guard response.response.status.kind != .successful else {
             return try JSONDecoder.decode(Response.self, from: response.data)

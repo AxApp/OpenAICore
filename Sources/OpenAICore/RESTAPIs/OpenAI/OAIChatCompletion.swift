@@ -7,7 +7,6 @@
 
 import Foundation
 import STJSON
-import AnyCodable
 
 public struct OAIChatCompletion: Codable, Sendable {
     
@@ -35,7 +34,7 @@ public struct OAIChatCompletion: Codable, Sendable {
         
     }
     
-    public struct Function: Codable, Equatable {
+    public struct Function: Codable, Equatable, Sendable {
        
         public var name: String
         public var description: String?
@@ -54,22 +53,22 @@ public struct OAIChatCompletion: Codable, Sendable {
         
     }
     
-    public enum ToolCallType: String, Codable, Equatable {
+    public enum ToolCallType: String, Codable, Equatable, Sendable {
         case function
     }
 }
 
 public extension OAIChatCompletion {
     
-    enum ResponseFormatType: String, Codable {
+    enum ResponseFormatType: String, Codable, Sendable {
         case text
         case json_object
         case json_schema
     }
     
-    struct ResponseFormat: Codable {
+    struct ResponseFormat: Codable, Sendable {
         
-        public struct JsonSchema: Codable, Equatable {
+        public struct JsonSchema: Codable, Equatable, Sendable {
            
             public var name: String
             public var description: String?
@@ -106,12 +105,12 @@ public extension OAIChatCompletion {
         
     }
     
-    enum UserMessageTextContentType: String, Codable {
+    enum UserMessageTextContentType: String, Codable, Sendable {
         case image_url
         case text
     }
     
-    struct RequestToolCall: Codable, Equatable {
+    struct RequestToolCall: Codable, Equatable, Sendable {
         public var id: String
         public var type: ToolCallType
         public var function: Function
@@ -124,7 +123,7 @@ public extension OAIChatCompletion {
         
     }
     
-    struct SystemMessage: Codable, Equatable {
+    struct SystemMessage: Codable, Equatable, Sendable {
         public var role: Role = .system
         public var name: String?
         public var content: String
@@ -134,7 +133,7 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct UserMessageTextContent: Codable, ExpressibleByStringLiteral, Equatable {
+    struct UserMessageTextContent: Codable, ExpressibleByStringLiteral, Equatable, Sendable {
         public var type: UserMessageTextContentType = .text
         public var text: String
         
@@ -146,24 +145,24 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct UserMessageImageURLContent: Codable, Equatable {
+    struct UserMessageImageURLContent: Codable, Equatable, Sendable {
         
-        enum Detail: String, Codable {
+        enum Detail: String, Codable, Sendable {
             case auto
             case high
             case low
         }
         
-        public struct WrapperURL: Codable, Equatable {
+        public struct WrapperURL: Codable, Equatable, Sendable {
             let url: String
             let detail: Detail?
         }
         
-        public let type: UserMessageTextContentType = .image_url
+        public var type: UserMessageTextContentType = .image_url
         var image_url: WrapperURL
     }
     
-    enum UserMessageContent: Codable, Equatable {
+    enum UserMessageContent: Codable, Equatable, Sendable {
         case text(UserMessageTextContent)
         case image_url(UserMessageImageURLContent)
         
@@ -176,7 +175,7 @@ public extension OAIChatCompletion {
             self.image_url(UserMessageImageURLContent(image_url: item))
         }
         
-        struct GetType: Codable {
+        struct GetType: Codable, Sendable {
             var type: UserMessageTextContentType
         }
         
@@ -199,7 +198,7 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct UserMessage: Codable, Equatable {
+    struct UserMessage: Codable, Equatable, Sendable {
         
         public var role: Role
         public var name: String?
@@ -228,7 +227,7 @@ public extension OAIChatCompletion {
     
     struct AssistantMessage: Codable, Equatable {
         
-        public let role: Role = .assistant
+        public var role: Role = .assistant
         public var name: String?
         public var refusal: String?
         
@@ -238,9 +237,9 @@ public extension OAIChatCompletion {
         public init() {}
     }
     
-    struct ToolMessage: Codable, Equatable {
+    struct ToolMessage: Codable, Equatable, Sendable {
         
-        public let role: Role = .tool
+        public var role: Role = .tool
         public var content: String
         public var tool_call_id: String
         public var name: String
@@ -343,7 +342,7 @@ public extension OAIChatCompletion {
         
     }
     
-    public struct RequestToolType: RawRepresentable, Equatable, Codable, ExpressibleByStringLiteral {
+    struct RequestToolType: RawRepresentable, Equatable, Codable, ExpressibleByStringLiteral, Sendable {
         
         public static let function = RequestToolType(rawValue: "function")
         
@@ -376,7 +375,7 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct RequestFunctionTool: Codable, Equatable {
+    struct RequestFunctionTool: Codable, Equatable, Sendable {
         
         public var type: RequestToolType
         public var function: RequestFunctionToolItem
@@ -388,7 +387,7 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct RequestFunctionToolItem: Codable, Equatable {
+    struct RequestFunctionToolItem: Codable, Equatable, Sendable {
         
         public var name: String
         public var description: String?
@@ -406,14 +405,14 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct ToolChoiceFunctionName: Codable, ExpressibleByStringLiteral {
+    struct ToolChoiceFunctionName: Codable, ExpressibleByStringLiteral, Sendable {
         public var name: String
         public init(stringLiteral value: String) {
             self.name = value
         }
     }
     
-    struct ToolChoiceFunction: Codable, ExpressibleByStringLiteral {
+    struct ToolChoiceFunction: Codable, ExpressibleByStringLiteral, Sendable {
         var type: String = "function"
         var function: ToolChoiceFunctionName
         
@@ -423,7 +422,7 @@ public extension OAIChatCompletion {
         
     }
     
-    enum ToolChoice: Codable {
+    enum ToolChoice: Codable, Sendable {
         case none
         case auto
         case function(ToolChoiceFunction)
@@ -529,12 +528,12 @@ public extension OAIChatCompletion {
 
 public extension OAIChatCompletion {
     
-    enum Object: String, Codable {
+    enum Object: String, Codable, Sendable {
         case chat_completion = "chat.completion"
         case chat_completion_chunk = "chat.completion.chunk"
     }
     
-    struct ResponseMessage: Codable, Equatable {
+    struct ResponseMessage: Codable, Equatable, Sendable {
         
         public var role: Role
         public var content: String?
@@ -552,13 +551,13 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct ResponseChunkMessage: Codable {
+    struct ResponseChunkMessage: Codable, Sendable {
         public var content: String?
         public var tool_calls: [ResponseToolCall]?
         public var role: Role?
     }
     
-    struct ResponseToolCall: Codable, Equatable {
+    struct ResponseToolCall: Codable, Equatable, Sendable {
         public var id: String
         public var type: RequestToolType
         public var function: Function
@@ -569,7 +568,7 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct FinishReason: Codable, RawRepresentable, ExpressibleByStringLiteral, Equatable {
+    struct FinishReason: Codable, RawRepresentable, ExpressibleByStringLiteral, Equatable, Sendable {
         public static let stop: FinishReason           = "stop"
         public static let tool_calls: FinishReason     = "tool_calls"
         public static let content_filter: FinishReason = "content_filter"
@@ -596,7 +595,7 @@ public extension OAIChatCompletion {
         
     }
     
-    struct ChunkChoice: Codable {
+    struct ChunkChoice: Codable, Sendable {
         
         
         public var index: Int
@@ -623,7 +622,7 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct Choice: Codable, Equatable {
+    struct Choice: Codable, Equatable, Sendable {
         public var index: Int
         public var message: ResponseMessage
         public var logprobs: LogProbability?
@@ -640,24 +639,24 @@ public extension OAIChatCompletion {
         }
     }
     
-    struct TopLogProbabilityContent: Codable, Equatable {
+    struct TopLogProbabilityContent: Codable, Equatable, Sendable {
         public var token: String
         public var logprob: Float
         public var bytes: [Int]
     }
     
-    struct LogProbabilityContent: Codable, Equatable {
+    struct LogProbabilityContent: Codable, Equatable, Sendable {
         public var token: String
         public var logprob: Float
         public var bytes: [Int]
         public var top_logprobs: [TopLogProbabilityContent]
     }
     
-    struct LogProbability: Codable, Equatable {
+    struct LogProbability: Codable, Equatable, Sendable {
         var content: [LogProbabilityContent]?
     }
     
-    struct StreamResponse: Codable {
+    struct StreamResponse: Codable, Sendable {
         public var id: String
         public var object: Object
         public var system_fingerprint: String?
@@ -667,7 +666,7 @@ public extension OAIChatCompletion {
         public var usage: OAIUsage?
     }
     
-    struct Response: Codable {
+    struct Response: Codable, Sendable {
         
         public var id: String
         public var object: Object
