@@ -78,6 +78,11 @@ public extension LLMClientProtocol {
         for (key, value) in headers {
             fields[key] = value
         }
+        
+        if fields[.contentType] == nil {
+            fields[.contentType] = "application/json; charset=utf-8"
+        }
+        
         let request = HTTPRequest(method: method, url: url, headerFields: fields)
         if let model = model {
             return try await upload(for: request, from: encoder.encode(model))
