@@ -23,6 +23,10 @@ public struct LLMResponse: Sendable {
         self.response = response
     }
     
+    public func decode<Value: Decodable>(_ type: Value.Type, decoder: JSONDecoder = .shared) throws -> Value {
+        try decoder.decode(Value.self, from: data)
+    }
+    
 }
 
 public enum LLMMultipartField {
@@ -61,6 +65,26 @@ public protocol LLMClientProtocol {
 }
 
 public extension LLMClientProtocol {
+    
+    func send(method: HTTPRequest.Method,
+              headers: [HTTPField.Name: String] = [:],
+              url: URL?,
+              model: Encodable? = nil,
+              encoder: JSONEncoder = .shared) async throws -> LLMResponse {
+        guard let url = url else {
+            throw URLError(.badURL)
+        }
+        var fields = HTTPFields()
+        for (key, value) in headers {
+            fields[key] = value
+        }
+        let request = HTTPRequest(method: method, url: url, headerFields: fields)
+        if let model = model {
+            return try await upload(for: request, from: encoder.encode(model))
+        } else {
+            return try await data(for: request)
+        }
+    }
     
     func data(for request: HTTPRequest) async throws -> LLMResponse {
         try await data(for: request, progress: nil)
