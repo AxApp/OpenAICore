@@ -107,8 +107,10 @@ public extension LLMModelToken {
 // 开源大语言模型
 public extension LLMModel {
 
-    static let deepseek_v3 = LLMModel(token: .x128k, organization: .deepseek, name: "deepseek-v3")
-    static let deepseek_r1 = LLMModel(token: .x128k, organization: .deepseek, name: "deepseek-r1")
+    static let deepseek_v3       = LLMModel(token: .x128k, organization: .deepseek, name: "deepseek-v3")
+    static let deepseek_r1       = LLMModel(token: .x128k, organization: .deepseek, name: "deepseek-r1")
+    static let deepseek_chat     = LLMModel(token: .x128k, organization: .deepseek, name: "deepseek-chat")
+    static let deepseek_reasoner = LLMModel(token: .x128k, organization: .deepseek, name: "deepseek-reasoner")
     
 }
 
